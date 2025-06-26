@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:meal_management/Presentation/ui/screen/splash_screen.dart';
 
 class MealManagement extends StatelessWidget {
@@ -6,7 +7,7 @@ class MealManagement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: _lightTheme(),
       darkTheme: _darkTheme(),
@@ -23,7 +24,7 @@ class MealManagement extends StatelessWidget {
     return ThemeData(
       inputDecorationTheme: InputDecorationTheme(
         border: _outlineInputBorder(),
-        enabledBorder: _outlineInputBorder(Colors.orange),
+        enabledBorder: _outlineInputBorder(Colors.blue),
         focusedBorder: _outlineInputBorder(Colors.teal),
         errorBorder: _outlineInputBorder(Colors.red),
         hintStyle: TextStyle(fontWeight: FontWeight.w400),
@@ -31,13 +32,14 @@ class MealManagement extends StatelessWidget {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey.shade300,
+          backgroundColor: Colors.blue.shade300,
+          elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(16),
               bottomLeft: Radius.circular(16),
-            )
-          )
+            ),
+          ),
         ),
       )
 

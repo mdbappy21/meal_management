@@ -1,8 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
+import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey _addFabKey=GlobalKey();
+  
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
@@ -25,7 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMessage()));
           }, icon: Icon(Icons.notifications_active)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.logout)),
+          IconButton(onPressed: onTapSignOut
+          , icon: Icon(Icons.logout)),
           SizedBox(width: 8),
         ],
       ),
@@ -194,6 +200,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+  
+  Future<void> onTapSignOut() async {
+    FirebaseAuth.instance.signOut();
+    final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
+    sharedPreferences.remove('isLoggedIn');
+    Get.offAll(SignIn());
   }
 }
 

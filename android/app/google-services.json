@@ -12,7 +12,20 @@
           "package_name": "com.example.meal_management"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "237316368182-bc3ajvu4s2lr8vfs7nnr8t4rkblqihpm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.meal_management",
+            "certificate_hash": "884138934ae63e29981e8078f7ab03450c8fe39e"
+          }
+        },
+        {
+          "client_id": "237316368182-utuheqngdqrcjnaag57n63gvd7ctu71g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCaloN2Vp7s7CRb4URYzuzsbSVWjpjMBb4"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237316368182-utuheqngdqrcjnaag57n63gvd7ctu71g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "237316368182-mfachmn3mp3764pd5aoi595d751sgcl4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mealManagement"
+              }
+            }
+          ]
         }
       }
     }

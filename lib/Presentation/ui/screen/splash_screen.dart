@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:meal_management/Data/services/wrapper.dart';
+import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
 import 'package:meal_management/Presentation/ui/screen/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,8 +45,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void>_moveToNextScreen()async{
     await Future.delayed(const Duration(seconds: 2));
-    if(mounted){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final isLoggedIn = sharedPreferences.getBool('isLoggedIn') ?? false;
+    if (isLoggedIn) {
+      Get.offAll(() => const HomeScreen());
+    } else {
+      Get.offAll(() => const Wrapper());
     }
   }
 }
