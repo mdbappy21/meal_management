@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:meal_management/Data/models/mess_info_model.dart';
+import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
@@ -9,26 +11,66 @@ import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
+  const HomeScreen({super.key, required this.messInfoModel});
+  final MessInfoModel? messInfoModel;
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey _addFabKey=GlobalKey();
-  
+  final MessInfoController messInfoController=Get.find<MessInfoController>();
+
+
+  Future<void> _onTapMessage() async {
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user == null) { /* user must be logged in */ }
+//     AuthController authController=Get.find<AuthController>();
+//     final token = await user?.getIdToken(); // no `true` parameter—cached and valid
+//     authController.saveAccessToken(token!);
+//     print('Firebase ID token: $token');
+//     print('Saved Token : ${AuthController.accessToken1}');
+//
+// // Then use it in your request:
+//     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(url:Urls.createMess);
+//
+//     print(response.statusCode);
+//     // print(response.body);
+//     final token = await FirebaseAuth.instance.currentUser?.getIdToken(true);
+//     print('Firebase ID token: $token');
+    // final response = await http.post(
+    //   Uri.parse('http://192.168.0.180:8000/create-mess'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: jsonEncode({'name': 'TestMess'}),
+    // );
+    // print(response.body);
+    // final response = await http.get(
+    //   Uri.parse(Urls.messInfo),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //   },
+    // );
+    // print(response.body);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey.shade300,
-        title: Text('Mess-1'),
+        title: Text(widget.messInfoModel!.messName ?? 'Mess Name'),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMessage()));
+          IconButton(onPressed: (
+
+              ) {
+            _onTapMessage();
+            // Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMessage()));
           }, icon: Icon(Icons.notifications_active)),
           IconButton(onPressed: onTapSignOut
           , icon: Icon(Icons.logout)),
@@ -57,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontSize: 18,
                         ),
                       ),
-                      Text('160'),
+                      Text('${widget.messInfoModel!.totalMeal}'),
                     ],
                   ),
                 ),
@@ -77,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontSize: 18,
                         ),
                       ),
-                      Text('160'),
+                      Text('${widget.messInfoModel!.totalCost}'),
                     ],
                   ),
                 ),
@@ -97,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontSize: 18,
                         ),
                       ),
-                      Text('160'),
+                      Text('${widget.messInfoModel!.mealRate}'),
                     ],
                   ),
                 ),
@@ -182,9 +224,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ).then((value) {
                   if (value == 'cost') {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AddCost()));
+                    Get.to(()=>AddCost());
                   }else if(value=='meal'){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal()));
+                    Get.to(()=>AddMeal());
                   }
                 });
 

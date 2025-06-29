@@ -20,6 +20,7 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   bool _showPassword = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -27,98 +28,105 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 54
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset('assets/images/logo.png', height: 150),
-                const SizedBox(height: 16),
-                _buildTextInputField(),
-                Visibility(
-                  visible: !_isLoading,
-                  replacement: CenteredCircularProgressIndicator(),
-                  child: ElevatedButton(
-                    onPressed: _onTapNextButton,
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(200, 50),
-                    ),
-                    child: const Text('Sign In', style: TextStyle(color: Colors.black)),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Get.to(() => ForgotPassword());
-                  },
-                  child: const Text(
-                    "Forgot Password",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-                const SizedBox(height: 48),
-                const Text('--------- Or Continue with --------'),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      children: [
+        Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 54
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: _onTapGoogleSignIn,
-                      child: Card(
-                        elevation: 4,
-                        color: Colors.white,
-                        child: SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: Image.asset('assets/images/googleIcon.png'),
+                    Image.asset('assets/images/logo.png', height: 150),
+                    const SizedBox(height: 16),
+                    _buildTextInputField(),
+                    Visibility(
+                      visible: !_isLoading,
+                      replacement: CenteredCircularProgressIndicator(),
+                      child: ElevatedButton(
+                        onPressed: _onTapNextButton,
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(200, 50),
                         ),
+                        child: const Text('Sign In', style: TextStyle(color: Colors.black)),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: (){},
-                      child: Card(
-                        elevation: 4,
-                        color: Colors.white,
-                        child: const SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: Icon(Icons.phone),
+                    TextButton(
+                      onPressed: () {
+                        Get.to(() => ForgotPassword());
+                      },
+                      child: const Text(
+                        "Forgot Password",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    const Text('--------- Or Continue with --------'),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: _onTapGoogleSignIn,
+                          child: Card(
+                            elevation: 4,
+                            color: Colors.white,
+                            child: SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: Image.asset('assets/images/googleIcon.png'),
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 16),
+                        GestureDetector(
+                          onTap: (){},
+                          child: Card(
+                            elevation: 4,
+                            color: Colors.white,
+                            child: const SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: Icon(Icons.phone),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    RichText(
+                      text: TextSpan(
+                        style: const TextStyle(fontSize: 16, color: Colors.black),
+                        children: [
+                          const TextSpan(text: 'Not a member? '),
+                          TextSpan(
+                            text: 'Register Now',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = _onTapSignUpButton,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    children: [
-                      const TextSpan(text: 'Not a member? '),
-                      TextSpan(
-                        text: 'Register Now',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = _onTapSignUpButton,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+
         ),
-      ),
+        if (_isGoogleLoading)
+          const CenteredCircularProgressIndicator(),
+      ],
 
     );
   }
@@ -201,24 +209,47 @@ class _SignInState extends State<SignIn> {
   }
 
   Future<void> _onTapGoogleSignIn() async {
+    if(mounted){
+      setState(() {
+        _isGoogleLoading = true;
+      });
+    }
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
       await googleSignIn.signOut();
      final GoogleSignInAccount? googleUser= await GoogleSignIn().signIn();
 
-     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      if (googleUser == null) {
+        if(mounted){
+          setState(() => _isGoogleLoading = false);
+        }
+        return;
+      }
+
+     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
      final credential = GoogleAuthProvider.credential(
-       accessToken: googleAuth?.accessToken,
-       idToken: googleAuth?.idToken,
+       accessToken: googleAuth.accessToken,
+       idToken: googleAuth.idToken,
      );
      await FirebaseAuth.instance.signInWithCredential(credential);
      final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
      await sharedPreferences.setBool('isLoggedIn', true);
+     if(mounted){
+       setState(() => _isGoogleLoading = false);
+     }
      Get.to(() => Wrapper());
-    } catch (e) {
-      print(e);
-      Get.snackbar('Google Sign-In Error', e.toString());
+    } on FirebaseException catch(e){
+      if(mounted){
+        setState(() => _isGoogleLoading = false);
+        Get.snackbar('Error', e.toString());
+      }
+    }
+    catch (e) {
+      if(mounted){
+        setState(() => _isGoogleLoading = false);
+        Get.snackbar('Google Sign-In Error', e.toString());
+      }
     }
   }
 

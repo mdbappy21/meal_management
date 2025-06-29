@@ -38,7 +38,7 @@ class _CreateMessState extends State<CreateMess> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(onPressed: (){
-              Get.to(()=>HomeScreen());
+              Get.to(()=>HomeScreen(messInfoModel: null,));
             }, child: Text('Confirm'))
           ],
         ),

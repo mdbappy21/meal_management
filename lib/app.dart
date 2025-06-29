@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Presentation/ui/screen/splash_screen.dart';
+import 'package:meal_management/controller_binders.dart';
 
 class MealManagement extends StatelessWidget {
   const MealManagement({super.key});
@@ -13,6 +14,7 @@ class MealManagement extends StatelessWidget {
       darkTheme: _darkTheme(),
       themeMode: ThemeMode.light,
       home: SplashScreen(),
+      initialBinding: ControllerBinder(),
     );
   }
 
