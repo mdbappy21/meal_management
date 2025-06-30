@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/mess_info_model.dart';
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
+import 'package:meal_management/Presentation/state_holder/pending_request_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
+import 'package:meal_management/Presentation/ui/screen/pending_request.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,6 +58,17 @@ class _HomeScreenState extends State<HomeScreen> {
     // print(response.body);
   }
 
+  Future<void>_onTapPendingRequest()async{
+    PendingRequestController pendingRequestController=Get.find<PendingRequestController>();
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    bool isSuccess= await pendingRequestController.pendingRequest(token!);
+    if(isSuccess){
+      Get.to(()=>PendingRequest(pendingRequest: pendingRequestController.pendingRequests));
+    }else{
+      // Get.offAll(() => const UserType());
+      Get.snackbar('failed', '${pendingRequestController.errorMassage}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(widget.messInfoModel!.messName ?? 'Mess Name'),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: (
-
-              ) {
-            _onTapMessage();
-            // Navigator.push(context, MaterialPageRoute(builder: (context)=>SendMessage()));
-          }, icon: Icon(Icons.notifications_active)),
-          IconButton(onPressed: onTapSignOut
-          , icon: Icon(Icons.logout)),
+          IconButton(onPressed: _onTapPendingRequest,
+              icon: Icon(Icons.notifications_active),
+          ),
+          IconButton(onPressed: onTapSignOut,
+              icon: Icon(Icons.logout),
+          ),
           SizedBox(width: 8),
         ],
       ),
