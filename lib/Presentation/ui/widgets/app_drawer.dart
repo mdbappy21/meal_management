@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_management/Data/models/member_model.dart';
 import 'package:meal_management/Presentation/ui/screen/add_balance.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
@@ -8,7 +9,8 @@ import 'package:meal_management/Presentation/ui/screen/profile.dart';
 import 'package:meal_management/Presentation/ui/screen/remove_member.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  const AppDrawer({super.key, required this.memberList});
+  final List<MemberModel>memberList;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.people),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: memberList,)));
                     },
                   ),
                   ListTile(

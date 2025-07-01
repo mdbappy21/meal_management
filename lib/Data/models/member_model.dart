@@ -1,4 +1,5 @@
 class MemberModel {
+  int? id;
   String? name;
   String? email;
   double? meal;
@@ -7,6 +8,7 @@ class MemberModel {
   bool? isManager;
 
   MemberModel({
+    this.id,
     this.name,
     this.email,
     this.meal,
@@ -16,6 +18,7 @@ class MemberModel {
   });
 
   MemberModel.fromJson(Map<String, dynamic> json) {
+    id= json['id'];
     name = json['name'];
     email = json['email'];
     meal = (json['meal'] as num?)?.toDouble();
@@ -26,6 +29,7 @@ class MemberModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id':id,
       'name': name,
       'email': email,
       'meal': meal,

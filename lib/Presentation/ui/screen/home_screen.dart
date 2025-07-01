@@ -8,10 +8,12 @@ import 'package:meal_management/Presentation/state_holder/mess_info_controller.d
 import 'package:meal_management/Presentation/state_holder/pending_request_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
+import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
 import 'package:meal_management/Presentation/ui/screen/pending_request.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
+import 'package:meal_management/Presentation/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -60,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool success = await Get.find<MembersInfoController>().fetchMembers(token!);
     if (success) {
       memberList=memberInfoController.memberList;
+      setState(() {});
     } else {
       Get.snackbar('Failed to Fetch data', memberInfoController.errorMessage!);
     }
@@ -84,6 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       items: const [
         PopupMenuItem(
+          value: 'AddMember',
+          child: Text('Add Member'),
+        ),
+        PopupMenuItem(
           value: 'cost',
           child: Text('Cost'),
         ),
@@ -100,6 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Get.to(() => AddCost());
       } else if (value == 'meal') {
         Get.to(() => AddMeal());
+      }else if (value == 'AddMember') {
+        Get.to(() => AddMember());
       }
     });
   }
@@ -124,20 +133,26 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 8),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: AppDrawer(memberList: memberList,),
       body: Column(
         children: [
           const SizedBox(height: 8),
           _buildBannerItems(size),
           const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              itemCount: memberList.length,
-              itemBuilder: (context, index) {
-                return _buildMembersDetailsCard(size, index);
-              },
+          Visibility(
+            visible: !memberInfoController.inProgress,
+            replacement: CenteredCircularProgressIndicator(),
+            child: Expanded(
+              child: GetBuilder<MembersInfoController>(
+                builder: (context) {
+                  return ListView.builder(
+                    itemCount: memberList.length,
+                    itemBuilder: (context, index) {
+                      return _buildMembersDetailsCard(size, index);
+                    },
+                  );
+                }
+              ),
             ),
           ),
         ],

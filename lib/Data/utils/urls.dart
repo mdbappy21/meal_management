@@ -12,7 +12,10 @@ class Urls{
   static String rejectRequest({required int requestId}) => '${_baseUrl}reject-request?request_id=$requestId';
   // static const String rejectRequest='${_baseUrl}reject-request';
   static const String members='${_baseUrl}members';
-  static const String removeMember='${_baseUrl}remove-member';
+  static String removeMember({required int memberId}) => '${_baseUrl}remove-member?member_id=$memberId';
+  static const String leaveMess = '${_baseUrl}leave-mess';
+  // static const String addMember = '${_baseUrl}add-member-by-email';
+  static String addMember(String email) => '${_baseUrl}add-member-by-email?email=$email';
   static const String addMeal='${_baseUrl}add-meal';
   static const String addDeposit='${_baseUrl}add-deposit';
   static const String addCost='${_baseUrl}add-cost';

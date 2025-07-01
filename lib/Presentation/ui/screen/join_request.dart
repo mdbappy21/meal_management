@@ -1,10 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:meal_management/Data/models/network_response.dart';
-import 'package:meal_management/Data/services/network_caller.dart';
-import 'package:meal_management/Data/utils/urls.dart';
 import 'package:meal_management/Presentation/state_holder/join_request_controller.dart';
 
 class JoinRequest extends StatefulWidget {
