@@ -1,8 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:meal_management/Presentation/state_holder/leave_mess_controller.dart';
+import 'package:meal_management/Presentation/ui/screen/user_type.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({super.key});
-
+  Profile({super.key});
+  final LeaveMessController leaveMessController=Get.find<LeaveMessController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +60,9 @@ class Profile extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _leaveMess();
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -72,5 +78,15 @@ class Profile extends StatelessWidget {
         ),
       ),
     );
+  }
+  Future<void>_leaveMess()async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    bool success = await Get.find<LeaveMessController>().leaveMess(token!);
+    if (success) {
+      Get.snackbar('Success', 'Successfully Leave Mess');
+      Get.offAll(()=>UserType());
+    } else {
+      Get.snackbar('Failed to Fetch data', leaveMessController.errorMessage!);
+    }
   }
 }
