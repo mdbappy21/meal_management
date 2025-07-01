@@ -5,6 +5,7 @@ import 'package:meal_management/Presentation/state_holder/auth_controller.dart';
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 
 import 'Presentation/state_holder/join_request_controller.dart';
+import 'Presentation/state_holder/members_info_controller.dart';
 import 'Presentation/state_holder/pending_request_controller.dart';
 import 'Presentation/state_holder/reject_request_controller.dart';
 
@@ -18,5 +19,6 @@ class ControllerBinder extends Bindings{
     Get.lazyPut(()=>PendingRequestController(),fenix: true);
     Get.lazyPut(()=>ApproveRequestController(),fenix: true);
     Get.lazyPut(()=>RejectRequestController(),fenix: true);
+    Get.lazyPut(()=>MembersInfoController(),fenix: true);
   }
 }
