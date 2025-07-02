@@ -10,6 +10,7 @@ import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
+import 'package:meal_management/Presentation/ui/screen/deposit_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/pending_request.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
@@ -109,6 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Get.to(() => AddMeal(member: memberList,));
       }else if (value == 'AddMember') {
         Get.to(() => AddMember());
+      }else if (value == 'deposit') {
+        Get.to(() => DepositScreen(memberList: memberList,));
       }
     });
   }

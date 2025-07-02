@@ -18,7 +18,8 @@ class Urls{
   static String addMember(String email) => '${_baseUrl}add-member-by-email?email=$email';
   // static String addMeal({required int memberId, required double qty, required String mealDate}) => '${_baseUrl}add-meal?member_id=$memberId&qty=$qty&meal_date=$mealDate';
   static const String addMeal='${_baseUrl}add-meals';
-  static const String addDeposit='${_baseUrl}add-deposit';
+  static String addDeposit({required int memberId, required double amount}) => '${_baseUrl}add-deposit?member_id=$memberId&amt=$amount';
+  // static const String addDeposit='${_baseUrl}add-deposit';
   static const String addCost='${_baseUrl}add-cost';
   static const String updateUtilityBill='${_baseUrl}update-bills';
   static const String endMonth='${_baseUrl}end-month';

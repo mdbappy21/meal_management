@@ -7,6 +7,7 @@ import 'package:meal_management/Presentation/state_holder/leave_mess_controller.
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/remove_member_controller.dart';
 
+import 'Presentation/state_holder/add_deposit_controller.dart';
 import 'Presentation/state_holder/add_meal_controller.dart';
 import 'Presentation/state_holder/join_request_controller.dart';
 import 'Presentation/state_holder/members_info_controller.dart';
@@ -28,5 +29,6 @@ class ControllerBinder extends Bindings{
     Get.lazyPut(()=>LeaveMessController(),fenix: true);
     Get.lazyPut(()=>AddMemberController(),fenix: true);
     Get.lazyPut(()=>AddMealController(),fenix: true);
+    Get.lazyPut(()=>AddDepositController(),fenix: true);
   }
 }
