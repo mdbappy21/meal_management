@@ -21,7 +21,7 @@ class MemberModel {
     id= json['id'];
     name = json['name'];
     email = json['email'];
-    meal = (json['meal'] as num?)?.toDouble();
+    meal = (json['meals'] as num?)?.toDouble();
     deposit = (json['deposit'] as num?)?.toDouble();
     balance = (json['balance'] as num?)?.toDouble();
     isManager = json['is_manager'];

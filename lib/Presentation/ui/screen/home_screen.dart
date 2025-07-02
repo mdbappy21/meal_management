@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value == 'cost') {
         Get.to(() => AddCost());
       } else if (value == 'meal') {
-        Get.to(() => AddMeal());
+        Get.to(() => AddMeal(member: memberList,));
       }else if (value == 'AddMember') {
         Get.to(() => AddMember());
       }

@@ -80,7 +80,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.add_circle_outline),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal(member: [],)));
                     },
                   ),
                   ListTile(

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meal_management/Data/models/network_response.dart';
-import 'package:meal_management/Presentation/state_holder/auth_controller.dart';
 
 class NetworkCaller {
   Future<NetworkResponse> getRequest({required String url,required String token}) async {
