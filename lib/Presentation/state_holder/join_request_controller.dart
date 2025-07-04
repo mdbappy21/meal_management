@@ -16,7 +16,7 @@ class JoinRequestController extends GetxController {
     _inProgress = true;
     update();
 
-    final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
+    final NetworkResponse response = await Get.find<NetworkCaller>().getRequest(
       url: Urls.joinRequest(messName: messName),
       token: token,
     );

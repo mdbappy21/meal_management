@@ -57,12 +57,12 @@ class RemoveMember extends StatelessWidget {
       Get.snackbar("Warning", 'Member Has Due');
       return;
     }
-    bool isSuccess= await removeMemberController.removeMember(token!,memberList[index].id!);
-    if(isSuccess){
-      Get.snackbar('Success', 'Successfully remove member');
-    }else{
-      // Get.offAll(() => const UserType());
-      Get.snackbar('failed', '${removeMemberController.errorMassage}');
-    }
+    // bool isSuccess= await removeMemberController.removeMember(token!,memberList[index].id!);
+    // if(isSuccess){
+    //   Get.snackbar('Success', 'Successfully remove member');
+    // }else{
+    //   // Get.offAll(() => const UserType());
+    //   Get.snackbar('failed', '${removeMemberController.errorMassage}');
+    // }
   }
 }

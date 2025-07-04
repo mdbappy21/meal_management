@@ -1,5 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:meal_management/Data/models/member_model.dart';
+import 'package:meal_management/Data/models/mess_info_model.dart';
+import 'package:meal_management/Data/models/mess_model.dart';
+import 'package:meal_management/Presentation/state_holder/delete_mess_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_balance.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
@@ -7,10 +12,13 @@ import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/change_manager.dart';
 import 'package:meal_management/Presentation/ui/screen/profile.dart';
 import 'package:meal_management/Presentation/ui/screen/remove_member.dart';
+import 'package:meal_management/Presentation/ui/screen/user_type.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.memberList});
+  const AppDrawer({super.key, required this.memberList, required this.messModel, required this.messInfoModel});
   final List<MemberModel>memberList;
+  final MessModel messModel;
+  final MessInfoModel messInfoModel;
 
   @override
   Widget build(BuildContext context) {
@@ -34,23 +42,22 @@ class AppDrawer extends StatelessWidget {
                   ListTile(
                     title: Row(
                       children: [
-                        const Text("Shaf's Bill :"),
-                        Expanded(child: TextFormField())
+                        Text("Chef's Bill : ${messModel.chefBill}"),
                       ],
                     ),
                     leading: const Icon(Icons.cookie),
                     onTap: () {},
                   ),
-                  ListTile(
-                    title: Row(
-                      children: [
-                        const Text("Fridge Bill :"),
-                        Expanded(child: TextFormField())
-                      ],
-                    ),
-                    leading: const Icon(Icons.shop),
-                    onTap: () {},
-                  ),
+                  // ListTile(
+                  //   title: Row(
+                  //     children: [
+                  //       const Text("Fridge Bill :"),
+                  //       Expanded(child: TextFormField())
+                  //     ],
+                  //   ),
+                  //   leading: const Icon(Icons.shop),
+                  //   onTap: () {},
+                  // ),
                   ListTile(
                     title: const Text("Add Members"),
                     leading: const Icon(Icons.people),
@@ -100,7 +107,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.person),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ChangeManager()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ChangeManager(messModel: messModel, messInfoModel: messInfoModel,)));
                     },
                   ),  ListTile(
                     title: const Text("Cost History"),
@@ -132,6 +139,13 @@ class AppDrawer extends StatelessWidget {
                     onTap: () {},
                   ),
                   ListTile(
+                    title: const Text("Delete mess",style: TextStyle(color: Colors.red),),
+                    leading: const Icon(Icons.delete_forever,color: Colors.red,),
+                    onTap: (){
+                      _onTapDeleteMess();
+                    },
+                  ),
+                  ListTile(
                     title: const Text("Logout"),
                     leading: const Icon(Icons.logout),
                     onTap: () {},
@@ -146,6 +160,17 @@ class AppDrawer extends StatelessWidget {
       ),
     );
   }
+  Future<void>_onTapDeleteMess()async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    DeleteMessController deleteMessController=Get.find<DeleteMessController>();
+    bool isSuccess = await deleteMessController.deleteMess(token!);
+    if(isSuccess){
+      Get.snackbar('Success', 'Successfully deleted mess');
+      Get.offAll(()=>UserType());
+    }{
+      Get.snackbar('Failed', deleteMessController.errorMassage!);
+    }
+  }
 
   Widget _buildDrawerHeader() {
     return DrawerHeader(
@@ -156,7 +181,7 @@ class AppDrawer extends StatelessWidget {
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text('Mess-1'), Text('Month: June')],
+              children: [Text('Mess-1'), Text('Month: ${messModel.monthStart}')],
             ),
           ),
         ],

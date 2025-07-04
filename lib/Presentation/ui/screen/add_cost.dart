@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:meal_management/Presentation/state_holder/add_cost_controller.dart';
 
 class AddCost extends StatefulWidget {
   const AddCost({super.key});
@@ -9,7 +12,8 @@ class AddCost extends StatefulWidget {
 
 class _AddCostState extends State<AddCost> {
   DateTime? selectedDate;
-  final List<String> _memberNameList = ['a', 'b', 'c'];
+  final TextEditingController _amountTEController=TextEditingController();
+  final TextEditingController _descriptionTEController=TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,40 +26,28 @@ class _AddCostState extends State<AddCost> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                OutlinedButton(onPressed: _selectDate, child: Text(selectedDate != null
-                    ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                    : 'select a date',),
-                ),
-                DropdownMenu<String>(
-                  dropdownMenuEntries: _memberNameList
-                      .map((member) => DropdownMenuEntry(value: member, label: member))
-                      .toList(),
-                ),
-              ],
-            ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _amountTEController,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Cost',
                 labelText: 'Amount',
               ),
             ),
-            Row(
-              children: const [
-                // Add text fields if needed
-              ],
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionTEController,
+              decoration: InputDecoration(
+                hintText: 'Description',
+                labelText: 'Description',
+              ),
             ),
             const SizedBox(height: 16),
-
-            const SizedBox(height: 16),
-
-            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _onTapConfirm();
+              },
               style: ElevatedButton.styleFrom(
                 fixedSize:Size(size.width*.6,50)
               ),
@@ -67,16 +59,24 @@ class _AddCostState extends State<AddCost> {
     );
   }
 
-  Future<void> _selectDate() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime(2025, 7, 25),
-      firstDate: DateTime(2025,7,1),
-      lastDate: DateTime(2025,7,30),
-    );
+  Future<void>_onTapConfirm()async{
+    AddCostController addCostController=Get.find<AddCostController>();
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    double amount=double.tryParse(_amountTEController.text)??0;
+    Map<String ,dynamic>body={
+      'amount':amount,
+      'description':_descriptionTEController.text
+    };
+    if(amount<=0){
+      Get.snackbar('Warning', 'Enter Correct amount and Try again');
+      return;
+    }
 
-    setState(() {
-      selectedDate = pickedDate;
-    });
+    bool success = await addCostController.addCost(token!, body);
+    if (success) {
+      Get.snackbar('success', 'Successfully add cost');
+    } else {
+      Get.snackbar('Failed', addCostController.errorMessage!);
+    }
   }
 }

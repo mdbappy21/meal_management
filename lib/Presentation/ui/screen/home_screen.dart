@@ -1,16 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meal_management/Data/models/member_model.dart';
 import 'package:meal_management/Data/models/mess_info_model.dart';
-import 'package:meal_management/Presentation/state_holder/members_info_controller.dart';
+import 'package:meal_management/Data/models/mess_model.dart';
+import 'package:meal_management/Presentation/state_holder/mess_members_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/pending_request_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
-import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
-import 'package:meal_management/Presentation/ui/screen/deposit_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/pending_request.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
@@ -27,8 +25,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey _addFabKey=GlobalKey();
   final MessInfoController messInfoController=Get.find<MessInfoController>();
-  final MembersInfoController memberInfoController =Get.find<MembersInfoController>();
-  List<MemberModel>memberList=[];
+  final MessMembersInfoController messMemberInfoController =Get.find<MessMembersInfoController>();
+  MessModel? messModel;
 
   @override
   void initState() {
@@ -39,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onTapMessage() {
     Get.to(()=>SendMessage());
   }
+
 
   Future<void> onTapSignOut() async {
     FirebaseAuth.instance.signOut();
@@ -52,22 +51,31 @@ class _HomeScreenState extends State<HomeScreen> {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     bool isSuccess= await pendingRequestController.pendingRequest(token!);
     if(isSuccess){
-      Get.to(()=>PendingRequest(pendingRequest: pendingRequestController.pendingRequests));
+      Get.to(()=>PendingRequest(pendingRequest: pendingRequestController.pendingRequests!));
     }else{
       // Get.offAll(() => const UserType());
       Get.snackbar('failed', '${pendingRequestController.errorMassage}');
     }
   }
+
   Future<void>_onTapGetMembersInfo()async{
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    bool success = await Get.find<MembersInfoController>().fetchMembers(token!);
+    bool success = await Get.find<MessMembersInfoController>().getMessDetails(token!);
     if (success) {
-      memberList=memberInfoController.memberList;
+      messModel=messMemberInfoController.messModel;
       setState(() {});
     } else {
-      Get.snackbar('Failed to Fetch data', memberInfoController.errorMessage!);
+      Get.snackbar('Failed to Fetch data', messMemberInfoController.errorMessage!);
     }
-
+  }
+  double mealRate(){
+    double mealRate=0;
+    try{
+      mealRate = messModel?.totalMeal ?? 0 / (messModel?.totalCost ?? 0 + (messModel?.chefBill ?? 0));
+    }catch(e){
+      mealRate=0.5;
+    }
+    return mealRate;
   }
   void _onTapPopUpMenu(){
     final context = _addFabKey.currentContext;
@@ -107,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value == 'cost') {
         Get.to(() => AddCost());
       } else if (value == 'meal') {
-        Get.to(() => AddMeal(member: memberList,));
+        // Get.to(() => AddMeal(member: messInfoModel!.members!,));
       }else if (value == 'AddMember') {
         Get.to(() => AddMember());
       }else if (value == 'deposit') {
-        Get.to(() => DepositScreen(memberList: memberList,));
+        // Get.to(() => DepositScreen(memberList: memberList,));
       }
     });
   }
@@ -122,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey.shade300,
-        title: Text(widget.messInfoModel!.messName ?? 'Mess Name'),
+        title: Text(widget.messInfoModel?.messName ?? 'Mess Name'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -136,20 +144,20 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 8),
         ],
       ),
-      drawer: AppDrawer(memberList: memberList,),
+      drawer: AppDrawer(memberList: [], messModel: messMemberInfoController.messModel!, messInfoModel: widget.messInfoModel!,),
       body: Column(
         children: [
           const SizedBox(height: 8),
           _buildBannerItems(size),
           const SizedBox(height: 8),
           Visibility(
-            visible: !memberInfoController.inProgress,
+            visible: !messMemberInfoController.inProgress,
             replacement: CenteredCircularProgressIndicator(),
             child: Expanded(
-              child: GetBuilder<MembersInfoController>(
+              child: GetBuilder<MessMembersInfoController>(
                 builder: (context) {
                   return ListView.builder(
-                    itemCount: memberList.length,
+                    itemCount: messModel?.members?.length??0,
                     itemBuilder: (context, index) {
                       return _buildMembersDetailsCard(size, index);
                     },
@@ -195,19 +203,16 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: SizedBox(
           width: size.width * .95,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Member ${memberList[index].name}'),
-                  Text('Meal: ${memberList[index].meal}'),
-                  Text('Deposit: ${memberList[index].deposit}'),
-                ],
-              ),
-              Text('Balance : ${memberList[index].balance}'),
+              Text('Manager ${widget.messInfoModel?.manager??'no manager'}'),
+              Text('Member ${messModel?.members?[index].email??'null name'}'),
+              Text('Meal: ${messModel?.members?[index].totalMeal??'Null meal'}'),
+              Text('Deposit: ${messModel?.members?[index].deposit??'Null deposit'}'),
+              Text('month: ${messModel?.members?[index].deposit??'Null deposit'}'),
+              Text('Balance : ${messModel?.members?[index].balance??'null balance'}'),
             ],
           ),
         ),
@@ -219,9 +224,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildBannerCard(size, 'Total Meal', '${widget.messInfoModel!.totalMeal}'),
-        _buildBannerCard(size, 'Total Cost', '${widget.messInfoModel!.totalCost}'),
-        _buildBannerCard(size, 'Meal Rate', '${widget.messInfoModel!.mealRate}'),
+        _buildBannerCard(size, 'Total Meal', '${messModel?.totalMeal??'null total meal'}'),
+        _buildBannerCard(size, 'Total Cost', '${messModel?.totalCost??'null total cost'}'),
+        _buildBannerCard(size, 'Meal Rate', '${mealRate()}'),
       ],
     );
   }

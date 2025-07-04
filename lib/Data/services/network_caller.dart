@@ -64,4 +64,35 @@ class NetworkCaller {
       );
     }
   }
+  Future<NetworkResponse> deleteRequest({required String url, required String token}) async {
+    try {
+      Uri uri = Uri.parse(url);
+      Response response = await delete(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'content-type': 'Application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        return NetworkResponse(
+          statusCode: response.statusCode,
+          isSuccess: true,
+          errorMassage: null
+        );
+      } else {
+        return NetworkResponse(
+            statusCode: response.statusCode,
+            isSuccess: false,
+            errorMassage: response.body
+        );
+      }
+    } catch (e) {
+      return NetworkResponse(
+        statusCode: -1,
+        isSuccess: false,
+        errorMassage: e.toString(),
+      );
+    }
+  }
 }

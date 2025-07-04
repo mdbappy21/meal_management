@@ -8,7 +8,7 @@ import 'package:meal_management/Presentation/state_holder/reject_request_control
 class PendingRequest extends StatefulWidget {
   const PendingRequest({super.key, required this.pendingRequest});
 
-  final List<PendingRequestModel> pendingRequest;
+  final PendingRequestModel pendingRequest;
 
   @override
   State<PendingRequest> createState() => _PendingRequestState();
@@ -25,7 +25,7 @@ class _PendingRequestState extends State<PendingRequest> {
           child: Column(
             children: [
               ListView.builder(
-                itemCount: widget.pendingRequest.length,
+                itemCount: widget.pendingRequest.pendingRequests!.length,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
@@ -42,35 +42,35 @@ class _PendingRequestState extends State<PendingRequest> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.pendingRequest[index].userName ??
+                                  widget.pendingRequest.pendingRequests![index] ??
                                       'No name',
                                   style: Theme.of(
                                     context,
-                                  ).textTheme.titleMedium,
+                                  ).textTheme.titleSmall,
                                 ),
-                                Text(
-                                  'Email: ${widget.pendingRequest[index].userEmail ?? 'N/A'}',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  'Phone: ${widget.pendingRequest[index].userPhone ?? 'N/A'}',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  'Requested At: ${widget.pendingRequest[index].requestedAt ?? 'N/A'}',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),Text(
-                                  'Requested ID: ${widget.pendingRequest[index].requestId ?? 'N/A'}',
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
+                                // Text(
+                                //   'Email: ${widget.pendingRequest[index].userEmail ?? 'N/A'}',
+                                //   style: TextStyle(
+                                //     overflow: TextOverflow.ellipsis,
+                                //   ),
+                                // ),
+                                // Text(
+                                //   'Phone: ${widget.pendingRequest[index].userPhone ?? 'N/A'}',
+                                //   style: TextStyle(
+                                //     overflow: TextOverflow.ellipsis,
+                                //   ),
+                                // ),
+                                // Text(
+                                //   'Requested At: ${widget.pendingRequest[index].requestedAt ?? 'N/A'}',
+                                //   style: TextStyle(
+                                //     overflow: TextOverflow.ellipsis,
+                                //   ),
+                                // ),Text(
+                                //   'Requested ID: ${widget.pendingRequest[index].requestId ?? 'N/A'}',
+                                //   style: TextStyle(
+                                //     overflow: TextOverflow.ellipsis,
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),
@@ -79,7 +79,7 @@ class _PendingRequestState extends State<PendingRequest> {
                               IconButton(
                                 onPressed: () {
                                   _onTapApproveRequest(
-                                      widget.pendingRequest[index].requestId!,
+                                      widget.pendingRequest.pendingRequests![index],
                                   );
                                 },
                                 icon: Icon(
@@ -90,7 +90,7 @@ class _PendingRequestState extends State<PendingRequest> {
                               IconButton(
                                 onPressed: () {
                                   _onTapRejectRequest(
-                                    widget.pendingRequest[index].requestId!,
+                                    widget.pendingRequest.pendingRequests![index],
                                   );
                                 },
                                 icon: Icon(
@@ -113,10 +113,9 @@ class _PendingRequestState extends State<PendingRequest> {
     );
   }
 
-  Future<void> _onTapApproveRequest(int requestId) async {
+  Future<void> _onTapApproveRequest(String email) async {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    bool isSuccess = await Get.find<ApproveRequestController>().approveRequest(token!, requestId);
-
+    bool isSuccess = await Get.find<ApproveRequestController>().approveRequest(token!, email);
     if (isSuccess) {
       Get.snackbar("Success", "Member approved!");
     } else {
@@ -124,9 +123,9 @@ class _PendingRequestState extends State<PendingRequest> {
     }
   }
 
-  Future<void> _onTapRejectRequest(int requestId) async {
+  Future<void> _onTapRejectRequest(String email) async {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    bool isRejected = await Get.find<RejectRequestController>().rejectRequest(token!, requestId);
+    bool isRejected = await Get.find<RejectRequestController>().rejectRequest(token!, email);
 
     if (isRejected) {
       Get.snackbar("Success", "Join request rejected.");

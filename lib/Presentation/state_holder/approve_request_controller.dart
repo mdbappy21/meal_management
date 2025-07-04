@@ -10,12 +10,12 @@ class ApproveRequestController extends GetxController {
   String? _errorMassage;
   String? get errorMassage => _errorMassage;
 
-  Future<bool> approveRequest(String token, int requestId) async {
+  Future<bool> approveRequest(String token, String email) async {
     _inProgress = true;
     update();
 
     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.approveRequest(requestId: requestId),
+      url: Urls.approveRequest(email: email),
       token: token,
     );
 

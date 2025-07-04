@@ -51,7 +51,7 @@ class _AddMealState extends State<AddMeal> {
                               children: [
                                 Text('${widget.member[index].name}'),
                                 Text('${widget.member[index].email}'),
-                                Text('Total Meal : ${widget.member[index].meal}'),
+                                Text('Total Meal : ${widget.member[index].name}'),
                               ],
                             ),
                           ),
@@ -100,7 +100,7 @@ class _AddMealState extends State<AddMeal> {
       "date": formattedDate,
       "meals": List.generate(widget.member.length, (index) {
         return {
-          "member_id": widget.member[index].id,  // Make sure MemberModel has `id`
+          // "member_id": widget.member[index].id,  // Make sure MemberModel has `id`
           "qty": _mealCounts[index],
         };
       }),

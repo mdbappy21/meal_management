@@ -107,13 +107,13 @@ class _DepositScreenState extends State<DepositScreen> {
       return;
     }else{
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-      bool success = await addDepositController.addDeposit(token: token!,amount:amount,  memberId: selectedMember!.id!);
-      if (success) {
-        Get.snackbar('Success', 'Deposit successfully');
-        _depositTEController.clear();
-      } else {
-        Get.snackbar('Failed',addDepositController.errorMessage!);
-      }
+      // bool success = await addDepositController.addDeposit(token: token!,amount:amount,  memberId: selectedMember!.id!);
+      // if (success) {
+      //   Get.snackbar('Success', 'Deposit successfully');
+      //   _depositTEController.clear();
+      // } else {
+      //   Get.snackbar('Failed',addDepositController.errorMessage!);
+      // }
     }
   }
 }

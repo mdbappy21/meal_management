@@ -14,7 +14,7 @@ class PendingRequestController extends GetxController {
   String? get errorMassage => _errorMassage;
 
   // PendingRequestModel? pendingRequestModel;
-  List<PendingRequestModel> pendingRequests = [];
+  PendingRequestModel? pendingRequests;
 
   Future<bool> pendingRequest(String token) async {
     _inProgress = true;
@@ -27,10 +27,14 @@ class PendingRequestController extends GetxController {
 
     if (response.isSuccess) {
       final data = response.responseData;
-      if (data is List) {
-        pendingRequests = data.map((e) => PendingRequestModel.fromJson(e)).toList();
-        print(pendingRequests.length);
-      } else {
+      if (data is Map<String, dynamic> && data['pending_requests'] is List) {
+        // Map each string email to a PendingRequestModel (if you still want a model)
+        pendingRequests = PendingRequestModel.fromJson(data);
+        _errorMassage = null;
+        _inProgress = false;
+        update();
+        return true;
+      }  else {
         _errorMassage = "Unexpected response format";
         return false;
       }
