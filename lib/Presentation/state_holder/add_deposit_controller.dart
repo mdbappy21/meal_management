@@ -12,12 +12,12 @@ class AddDepositController extends GetxController {
 
   String? get errorMessage => _errorMassage;
 
-  Future<bool> addDeposit({required String token,required double amount,required int memberId}) async {
+  Future<bool> addDeposit({required String token,required double amount,required String email}) async {
     _inProgress = true;
     update();
 
     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.addDeposit(memberId: memberId, amount: amount),
+      url: Urls.addDeposit(email: email, amount: amount),
       token: token,
     );
 

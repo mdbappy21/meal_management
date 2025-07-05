@@ -7,8 +7,10 @@ import 'package:meal_management/Presentation/state_holder/mess_members_info_cont
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/pending_request_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
+import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
+import 'package:meal_management/Presentation/ui/screen/deposit_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/pending_request.dart';
 import 'package:meal_management/Presentation/ui/screen/send_message.dart';
 import 'package:meal_management/Presentation/ui/widgets/app_drawer.dart';
@@ -68,14 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
       Get.snackbar('Failed to Fetch data', messMemberInfoController.errorMessage!);
     }
   }
-  double mealRate(){
+  String mealRate(){
     double mealRate=0;
     try{
-      mealRate = messModel?.totalMeal ?? 0 / (messModel?.totalCost ?? 0 + (messModel?.chefBill ?? 0));
+      mealRate =(messModel?.totalCost ?? 0 + (messModel?.chefBill ?? 0))/ (messModel?.totalMeal ?? 0);
     }catch(e){
       mealRate=0.5;
     }
-    return mealRate;
+    return mealRate.toStringAsFixed(2);
   }
   void _onTapPopUpMenu(){
     final context = _addFabKey.currentContext;
@@ -115,17 +117,25 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value == 'cost') {
         Get.to(() => AddCost());
       } else if (value == 'meal') {
-        // Get.to(() => AddMeal(member: messInfoModel!.members!,));
+        Get.to(() => AddMeal(member: messModel!.members!,));
       }else if (value == 'AddMember') {
         Get.to(() => AddMember());
       }else if (value == 'deposit') {
-        // Get.to(() => DepositScreen(memberList: memberList,));
+        Get.to(() => DepositScreen(messModel: messModel!,));
       }
     });
+  }
+  Future<void>_refreshData()async{
+    _onTapGetMembersInfo();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (messModel == null) {
+      return const Scaffold(
+        body: CenteredCircularProgressIndicator(),
+      );
+    }
     Size size = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: AppBar(
@@ -144,29 +154,34 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 8),
         ],
       ),
-      drawer: AppDrawer(memberList: [], messModel: messMemberInfoController.messModel!, messInfoModel: widget.messInfoModel!,),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-          _buildBannerItems(size),
-          const SizedBox(height: 8),
-          Visibility(
-            visible: !messMemberInfoController.inProgress,
-            replacement: CenteredCircularProgressIndicator(),
-            child: Expanded(
-              child: GetBuilder<MessMembersInfoController>(
-                builder: (context) {
-                  return ListView.builder(
-                    itemCount: messModel?.members?.length??0,
-                    itemBuilder: (context, index) {
-                      return _buildMembersDetailsCard(size, index);
-                    },
-                  );
-                }
+      drawer: AppDrawer(messModel: messModel!, messInfoModel: widget.messInfoModel!,),
+      body: RefreshIndicator(
+        onRefresh: ()async{
+          _refreshData();
+        },
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            _buildBannerItems(size),
+            const SizedBox(height: 8),
+            Visibility(
+              visible: !messMemberInfoController.inProgress,
+              replacement: CenteredCircularProgressIndicator(),
+              child: Expanded(
+                child: GetBuilder<MessMembersInfoController>(
+                  builder: (context) {
+                    return ListView.builder(
+                      itemCount: messModel?.members?.length??0,
+                      itemBuilder: (context, index) {
+                        return _buildMembersDetailsCard(size, index);
+                      },
+                    );
+                  }
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(left: 32),
@@ -207,11 +222,12 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Manager ${widget.messInfoModel?.manager??'no manager'}'),
-              Text('Member ${messModel?.members?[index].email??'null name'}'),
-              Text('Meal: ${messModel?.members?[index].totalMeal??'Null meal'}'),
+              Text('Name: ${messModel?.members?[index].email!.split('@').first??'N/A'}'),
+              Text('Email ${messModel?.members?[index].email??'N/A'}'),
+              Text('Total Meal: ${messModel?.members?[index].totalMeal??'N/A'}'),
               Text('Deposit: ${messModel?.members?[index].deposit??'Null deposit'}'),
-              Text('month: ${messModel?.members?[index].deposit??'Null deposit'}'),
+              Text('Total Cost: ${((messModel?.members?[index].totalMeal ?? 0) * double.parse(mealRate())).toStringAsFixed(2)}'),
+
               Text('Balance : ${messModel?.members?[index].balance??'null balance'}'),
             ],
           ),
@@ -226,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         _buildBannerCard(size, 'Total Meal', '${messModel?.totalMeal??'null total meal'}'),
         _buildBannerCard(size, 'Total Cost', '${messModel?.totalCost??'null total cost'}'),
-        _buildBannerCard(size, 'Meal Rate', '${mealRate()}'),
+        _buildBannerCard(size, 'Meal Rate', mealRate()),
       ],
     );
   }

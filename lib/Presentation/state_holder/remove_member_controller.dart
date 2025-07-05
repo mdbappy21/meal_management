@@ -10,12 +10,12 @@ class RemoveMemberController extends GetxController {
   String? _errorMassage;
   String? get errorMassage => _errorMassage;
 
-  Future<bool> removeMember(String token, int memberId) async {
+  Future<bool> removeMember(String token, String email) async {
     _inProgress = true;
     update();
 
-    final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.removeMember(memberId: memberId),
+    final NetworkResponse response = await Get.find<NetworkCaller>().deleteRequest(
+      url: Urls.removeMember(email: email),
       token: token,
     );
 

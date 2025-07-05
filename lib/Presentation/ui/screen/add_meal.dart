@@ -21,6 +21,8 @@ class _AddMealState extends State<AddMeal> {
     _mealCounts = List.filled(widget.member.length, 0); // or default to 1/2 if needed
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,14 +46,14 @@ class _AddMealState extends State<AddMeal> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: 160,
+                            width: 170,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('${widget.member[index].name}'),
                                 Text('${widget.member[index].email}'),
-                                Text('Total Meal : ${widget.member[index].name}'),
+                                Text('Total Meal : ${widget.member[index].totalMeal}'),
                               ],
                             ),
                           ),
@@ -93,15 +95,13 @@ class _AddMealState extends State<AddMeal> {
     );
   }
   Future<void> _onTapAddMeal() async {
-    String formattedDate = DateTime.now().toIso8601String().split("T").first;
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
 
     final body = {
-      "date": formattedDate,
       "meals": List.generate(widget.member.length, (index) {
         return {
-          // "member_id": widget.member[index].id,  // Make sure MemberModel has `id`
-          "qty": _mealCounts[index],
+          "email": widget.member[index].email,
+          "meal": _mealCounts[index],
         };
       }),
     };
@@ -116,21 +116,3 @@ class _AddMealState extends State<AddMeal> {
     }
   }
 }
-// OutlinedButton(
-//   onPressed: _selectDate,
-//   child: Text(selectedDate != null ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}' : 'select a date',
-//   ),
-// ),
-// const SizedBox(height: 8),
-// Future<void> _selectDate() async {
-//   final DateTime? pickedDate = await showDatePicker(
-//     context: context,
-//     initialDate: DateTime(2025, 7, 25),
-//     firstDate: DateTime(2025, 7, 1),
-//     lastDate: DateTime(2025, 7, 30),
-//   );
-//
-//   setState(() {
-//     selectedDate = pickedDate;
-//   });
-// }

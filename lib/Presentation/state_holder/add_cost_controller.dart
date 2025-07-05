@@ -12,13 +12,12 @@ class AddCostController extends GetxController {
 
   String? get errorMessage => _errorMassage;
 
-  Future<bool> addCost(String token, Map<String, dynamic> body) async {
+  Future<bool> addCost(String token, double amount) async {
     _inProgress = true;
     update();
 
     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.addCost,
-      body: body,
+      url: Urls.addCost(amount),
       token: token,
     );
 

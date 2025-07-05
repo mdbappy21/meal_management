@@ -13,7 +13,6 @@ class AddCost extends StatefulWidget {
 class _AddCostState extends State<AddCost> {
   DateTime? selectedDate;
   final TextEditingController _amountTEController=TextEditingController();
-  final TextEditingController _descriptionTEController=TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +35,6 @@ class _AddCostState extends State<AddCost> {
               ),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionTEController,
-              decoration: InputDecoration(
-                hintText: 'Description',
-                labelText: 'Description',
-              ),
-            ),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 _onTapConfirm();
@@ -63,16 +54,12 @@ class _AddCostState extends State<AddCost> {
     AddCostController addCostController=Get.find<AddCostController>();
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     double amount=double.tryParse(_amountTEController.text)??0;
-    Map<String ,dynamic>body={
-      'amount':amount,
-      'description':_descriptionTEController.text
-    };
     if(amount<=0){
       Get.snackbar('Warning', 'Enter Correct amount and Try again');
       return;
     }
 
-    bool success = await addCostController.addCost(token!, body);
+    bool success = await addCostController.addCost(token!,amount);
     if (success) {
       Get.snackbar('success', 'Successfully add cost');
     } else {

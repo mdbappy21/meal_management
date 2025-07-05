@@ -2,12 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/member_model.dart';
+import 'package:meal_management/Data/models/mess_model.dart';
 import 'package:meal_management/Presentation/state_holder/add_deposit_controller.dart';
 
 class DepositScreen extends StatefulWidget {
-  const DepositScreen({super.key, required this.memberList});
+  const DepositScreen({super.key, required this.messModel});
 
-  final List<MemberModel> memberList;
+  final MessModel messModel;
 
   @override
   State<DepositScreen> createState() => _DepositScreenState();
@@ -34,7 +35,7 @@ class _DepositScreenState extends State<DepositScreen> {
               },
               child: Text(
                 selectedMember != null
-                    ? selectedMember!.name ?? 'No Name'
+                    ? selectedMember!.email ?? 'No Name'
                     : 'Choose Member',
               ),
             ),
@@ -75,11 +76,11 @@ class _DepositScreenState extends State<DepositScreen> {
         0,
       ),
       color: Colors.grey.shade200,
-      items: widget.memberList
+      items: widget.messModel.members!
           .map(
             (member) => PopupMenuItem(
               value: member,
-              child: Text(member.name ?? 'No Name'),
+              child: Text(member.email ?? 'No Name'),
             ),
           )
           .toList(),
@@ -107,13 +108,13 @@ class _DepositScreenState extends State<DepositScreen> {
       return;
     }else{
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-      // bool success = await addDepositController.addDeposit(token: token!,amount:amount,  memberId: selectedMember!.id!);
-      // if (success) {
-      //   Get.snackbar('Success', 'Deposit successfully');
-      //   _depositTEController.clear();
-      // } else {
-      //   Get.snackbar('Failed',addDepositController.errorMessage!);
-      // }
+      bool success = await addDepositController.addDeposit(token: token!,amount:amount, email:selectedMember!.email!);
+      if (success) {
+        Get.snackbar('Success', 'Deposit successfully');
+        _depositTEController.clear();
+      } else {
+        Get.snackbar('Failed',addDepositController.errorMessage!);
+      }
     }
   }
 }

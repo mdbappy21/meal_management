@@ -6,7 +6,7 @@ class MealsDates {
 
   MealsDates.fromJson(Map<String, dynamic> json) {
     date = json['date'];
-    meals = json['meals'];
+    meals = (json['meals'] as num?)?.toDouble();
   }
 
   Map<String, dynamic> toJson() {

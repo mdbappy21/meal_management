@@ -1,22 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meal_management/Data/models/member_model.dart';
 import 'package:meal_management/Data/models/mess_info_model.dart';
 import 'package:meal_management/Data/models/mess_model.dart';
+import 'package:meal_management/Data/services/wrapper.dart';
 import 'package:meal_management/Presentation/state_holder/delete_mess_controller.dart';
+import 'package:meal_management/Presentation/state_holder/previous_month_controller.dart';
+import 'package:meal_management/Presentation/state_holder/start_new_month_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_balance.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/add_member.dart';
 import 'package:meal_management/Presentation/ui/screen/change_manager.dart';
+import 'package:meal_management/Presentation/ui/screen/previous_month_data_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/profile.dart';
 import 'package:meal_management/Presentation/ui/screen/remove_member.dart';
 import 'package:meal_management/Presentation/ui/screen/user_type.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.memberList, required this.messModel, required this.messInfoModel});
-  final List<MemberModel>memberList;
+  const AppDrawer({super.key, required this.messModel, required this.messInfoModel});
   final MessModel messModel;
   final MessInfoModel messInfoModel;
 
@@ -71,7 +73,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.people),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: memberList,)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: messModel.members!,)));
                     },
                   ),
                   ListTile(
@@ -125,13 +127,17 @@ class AppDrawer extends StatelessWidget {
                     title: const Text("Start New Month"),
                     leading: const Icon(Icons.skip_next),
                     trailing: const Icon(Icons.navigate_next),
-                    onTap: () {},
+                    onTap: () {
+                      _onTapStartNewMonth();
+                    },
                   ),
                   ListTile(
                     title: const Text("Previous Month"),
                     leading: const Icon(Icons.skip_previous),
                     trailing: const Icon(Icons.navigate_next),
-                    onTap: () {},
+                    onTap: () {
+                      _onTapPreviousMonthData();
+                    },
                   ),
                   ListTile(
                     title: const Text("Dark Mode"),
@@ -160,6 +166,18 @@ class AppDrawer extends StatelessWidget {
       ),
     );
   }
+
+  Future<void>_onTapPreviousMonthData()async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    PreviousMonthController previousMonthController=Get.find<PreviousMonthController>();
+    bool isSuccess = await previousMonthController.getMessInfo(token!);
+    if(isSuccess){
+      Get.to(()=>PreviousMonthDataScreen(previousMonthDataModel: previousMonthController.previousMonthData!,));
+    }else{
+      Get.snackbar('Failed', previousMonthController.errorMassage!);
+    }
+  }
+
   Future<void>_onTapDeleteMess()async{
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     DeleteMessController deleteMessController=Get.find<DeleteMessController>();
@@ -169,6 +187,35 @@ class AppDrawer extends StatelessWidget {
       Get.offAll(()=>UserType());
     }{
       Get.snackbar('Failed', deleteMessController.errorMassage!);
+    }
+  }
+  Future<void>_onTapStartNewMonth()async{
+    Get.defaultDialog(
+      backgroundColor: Colors.grey.shade400,
+      buttonColor: Colors.red,
+      title:'New Month Starting',
+      middleText: 'Are you sure you Create a new Month?',
+      textCancel: 'No',
+      textConfirm: 'Yes',
+      barrierDismissible: false,
+      onCancel: (){
+        Get.back();
+      },
+      onConfirm: (){
+        _onTapConfirmStartNewMonth();
+      }
+    );
+  }
+  Future<void>_onTapConfirmStartNewMonth()async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    StartNewMonthController startNewMonthController=Get.find<StartNewMonthController>();
+    bool success = await startNewMonthController.createNewMonth(token!);
+    if (success) {
+      Get.snackbar('Success','Successfully create new Month');
+      Future.delayed(const Duration(seconds: 1));
+      Get.offAll(()=>Wrapper());
+    } else {
+      Get.snackbar('Failed to Fetch data', startNewMonthController.errorMassage!,colorText: Colors.white60,backgroundColor: Colors.black54);
     }
   }
 
