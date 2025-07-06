@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:meal_management/Data/models/previous_month_data_model.dart';
+import 'package:meal_management/Presentation/state_holder/add_deposit_previous_month_controller.dart';
 
 class PreviousMonthDataScreen extends StatefulWidget {
   const PreviousMonthDataScreen({super.key, required this.previousMonthDataModel});
@@ -36,10 +39,28 @@ class _PreviousMonthDataScreenState extends State<PreviousMonthDataScreen> {
                       children: [
                         Text('Member: ${widget.previousMonthDataModel.members?[index].email??'N/A'}', style: TextStyle(fontWeight: FontWeight.bold)),
                         SizedBox(height: 4),
-                        Text('Total Meal: ${widget.previousMonthDataModel.members?[index].totalMeal}'),
-                        Text('Deposit: ${widget.previousMonthDataModel.members?[index].deposit}'),
-                        Text('Balance: ${widget.previousMonthDataModel.members?[index].balance}'),
-                        Text('Due: ${widget.previousMonthDataModel.members?[index].balance}'),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Total Meal: ${widget.previousMonthDataModel.members?[index].totalMeal}'),
+                                Text('Deposit: ${widget.previousMonthDataModel.members?[index].deposit}'),
+                                Text('Balance: ${widget.previousMonthDataModel.members?[index].balance}'),
+                                Text('Due: ${widget.previousMonthDataModel.members?[index].balance}'),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                IconButton(onPressed: (){
+                                  _onTapStartNewMonth(index);
+                                }, icon: Icon(Icons.remove_done)),
+                                Text('Clear Due'),
+                              ],
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -50,6 +71,38 @@ class _PreviousMonthDataScreenState extends State<PreviousMonthDataScreen> {
         ],
       ),
     );
+  }
+
+  Future<void>_onTapStartNewMonth(int index)async{
+    String email=widget.previousMonthDataModel.members![index].email!;
+    // double due=widget.previousMonthDataModel.members?[index].balance??0;
+    double due=100;
+    Get.defaultDialog(
+        backgroundColor: Colors.grey.shade400,
+        buttonColor: Colors.red,
+        title:'Due Payment',
+        middleText: 'Are you sure you got Due Amount from\n$email\nAmount : $due',
+        textCancel: 'No',
+        textConfirm: 'Yes',
+        barrierDismissible: false,
+        onCancel: (){
+        },
+        onConfirm: (){
+          _onTapClearDue(email,due);
+          Get.back();
+        }
+    );
+  }
+
+  Future<void>_onTapClearDue(String email,double due)async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    AddDepositPreviousMonthController addDepositPreviousMonthController=Get.find<AddDepositPreviousMonthController>();
+    bool success = await addDepositPreviousMonthController.addDeposit(email: email,amount: due, token: token!);
+    if (success) {
+      Get.snackbar('Success','Successfully Pay DUe');
+    } else {
+      Get.snackbar('Failed', addDepositPreviousMonthController.errorMessage!,colorText: Colors.white60,backgroundColor: Colors.black54);
+    }
   }
 
   Widget _buildBannerItems(Size size) {

@@ -18,6 +18,7 @@ class Urls{
   static String removeMember({required String email}) => '${_baseUrl}mess/remove_member?email=$email';
   static const String startNewMonth='${_baseUrl}month/start_new';
   static const String previousMonth='${_baseUrl}month/previous';
+  static String dueClearPreviousMonth({required String email, required double amount})=>'${_baseUrl}deposit/previous_month?email=$email&amount=$amount';
 
 
 

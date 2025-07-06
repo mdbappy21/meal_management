@@ -9,6 +9,7 @@ import 'package:meal_management/Presentation/state_holder/previous_month_control
 import 'package:meal_management/Presentation/state_holder/remove_member_controller.dart';
 import 'Presentation/state_holder/add_cost_controller.dart';
 import 'Presentation/state_holder/add_deposit_controller.dart';
+import 'Presentation/state_holder/add_deposit_previous_month_controller.dart';
 import 'Presentation/state_holder/add_meal_controller.dart';
 import 'Presentation/state_holder/change_manager_controller.dart';
 import 'Presentation/state_holder/create_mess_controller.dart';
@@ -41,5 +42,6 @@ class ControllerBinder extends Bindings{
     Get.lazyPut(()=>ChangeManagerController(),fenix: true);
     Get.lazyPut(()=>StartNewMonthController(),fenix: true);
     Get.lazyPut(()=>PreviousMonthController(),fenix: true);
+    Get.lazyPut(()=>AddDepositPreviousMonthController(),fenix: true);
   }
 }
