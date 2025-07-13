@@ -25,25 +25,6 @@ class _AddMealState extends State<AddMeal> {
     _mealCounts = List.filled(widget.member.length, 0);
   }
 
-Future<void>_onTapDetails()async{
-  final List<ViewMealModel> viewMealModel;
-  final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-  bool success = await Get.find<ViewMealDetailsController>().viewMealDetails(token!);
-  ViewMealDetailsController viewMealDetailsController=Get.find<ViewMealDetailsController>();
-  if (success) {
-    viewMealModel=viewMealDetailsController.viewMealModelList;
-    Get.to(()=>ViewMealDetails(viewMealModel: viewMealModel));
-  } else {
-    Get.snackbar('Failed to Fetch data', viewMealDetailsController.errorMassage??'missing error message');
-  }
-}
-
-
-Future<void>_onTapUpdateMeals()async{
-    Get.to(()=>UpdateMealScreen(member: widget.member));
-}
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,42 +58,12 @@ Future<void>_onTapUpdateMeals()async{
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: 170,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('${widget.member[index].email?.split('@').first}'),
-                                Text('${widget.member[index].email}'),
-                                Text('Total Meal : ${widget.member[index].totalMeal}'),
-                              ],
-                            ),
-                          ),
+                          _buildMemberInfo(index),
                           CircleAvatar(
                             backgroundColor: Colors.orange,
                             child: Text('${_mealCounts[index]}'),
                           ),
-                          Column(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _mealCounts[index]++;
-                                  });
-                                },
-                                icon: Icon(Icons.add),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (_mealCounts[index] > 0) _mealCounts[index]--;
-                                  });
-                                },
-                                icon: Icon(Icons.remove),
-                              ),
-                            ],
-                          ),
+                          _buildCounter(index),
                         ],
                       ),
                     ),
@@ -120,12 +71,55 @@ Future<void>_onTapUpdateMeals()async{
                 },
               ),
             ),
-            ElevatedButton(onPressed: (){_onTapAddMeal();}, child: Text('Add Meal'))
+            ElevatedButton(onPressed: _onTapAddMeal, child: Text('Add Meal'))
           ],
         ),
       ),
     );
   }
+
+  // Widgets //
+
+  Widget _buildMemberInfo(int index) {
+    return SizedBox(
+      width: 170,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${widget.member[index].name}'),
+          Text('${widget.member[index].email}'),
+          Text('Total Meal : ${widget.member[index].totalMeal}'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCounter(int index) {
+    return Column(
+      children: [
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _mealCounts[index]++;
+            });
+          },
+          icon: Icon(Icons.add),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              if (_mealCounts[index] > 0) _mealCounts[index]--;
+            });
+          },
+          icon: Icon(Icons.remove),
+        ),
+      ],
+    );
+  }
+
+  // Functions //
+
   Future<void> _onTapAddMeal() async {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
 
@@ -149,5 +143,22 @@ Future<void>_onTapUpdateMeals()async{
     } else {
       Get.snackbar('Failed', 'Failed to add meal');
     }
+  }
+
+  Future<void>_onTapDetails()async{
+    final List<ViewMealModel> viewMealModel;
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    bool success = await Get.find<ViewMealDetailsController>().viewMealDetails(token!);
+    ViewMealDetailsController viewMealDetailsController=Get.find<ViewMealDetailsController>();
+    if (success) {
+      viewMealModel=viewMealDetailsController.viewMealModelList;
+      Get.to(()=>ViewMealDetails(viewMealModel: viewMealModel));
+    } else {
+      Get.snackbar('Failed to Fetch data', viewMealDetailsController.errorMassage??'missing error message');
+    }
+  }
+
+  Future<void>_onTapUpdateMeals()async{
+    Get.to(()=>UpdateMealScreen(member: widget.member));
   }
 }

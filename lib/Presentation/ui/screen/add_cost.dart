@@ -18,21 +18,6 @@ class _AddCostState extends State<AddCost> {
   DateTime? selectedDate;
   final TextEditingController _amountTEController=TextEditingController();
 
-
-  Future<void>_onTapDetails()async{
-    final  List<ViewCostModel> viewCostModel;
-    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    ViewCostDetailsController viewCostDetailsController=Get.find<ViewCostDetailsController>();
-    bool success = await viewCostDetailsController.viewCostDetails(token!);
-
-    if (success) {
-      viewCostModel=viewCostDetailsController.viewCostModelList;
-      Get.to(()=>ViewCostDetails(viewCostModel:viewCostModel));
-    } else {
-      Get.snackbar('Failed to Fetch data', viewCostDetailsController.errorMassage??'missing error message');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size=MediaQuery.sizeOf(context);
@@ -78,6 +63,22 @@ class _AddCostState extends State<AddCost> {
     );
   }
 
+  // Functions//
+
+  Future<void>_onTapDetails()async{
+    final  List<ViewCostModel> viewCostModel;
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    ViewCostDetailsController viewCostDetailsController=Get.find<ViewCostDetailsController>();
+    bool success = await viewCostDetailsController.viewCostDetails(token!);
+
+    if (success) {
+      viewCostModel=viewCostDetailsController.viewCostModelList;
+      Get.to(()=>ViewCostDetails(viewCostModel:viewCostModel));
+    } else {
+      Get.snackbar('Failed to Fetch data', viewCostDetailsController.errorMassage??'missing error message');
+    }
+  }
+
   Future<void> _onTapAddCost() async {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     final date = DateTime.now().toIso8601String().split('T').first;
@@ -100,5 +101,11 @@ class _AddCostState extends State<AddCost> {
     } else {
       Get.snackbar('Failed', addCostController.errorMessage!);
     }
+  }
+
+  @override
+  void dispose() {
+    _amountTEController.dispose();
+    super.dispose();
   }
 }

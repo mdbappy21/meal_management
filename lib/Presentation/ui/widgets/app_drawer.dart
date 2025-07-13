@@ -1,131 +1,115 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:meal_management/Data/models/mess_info_model.dart';
-import 'package:meal_management/Data/models/month_model.dart';
-import 'package:meal_management/Data/services/wrapper.dart';
-import 'package:meal_management/Presentation/state_holder/delete_mess_controller.dart';
-import 'package:meal_management/Presentation/state_holder/previous_month_controller.dart';
-import 'package:meal_management/Presentation/state_holder/start_new_month_controller.dart';
-import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
-import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
-import 'package:meal_management/Presentation/ui/screen/add_member.dart';
-import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
-import 'package:meal_management/Presentation/ui/screen/change_manager.dart';
-import 'package:meal_management/Presentation/ui/screen/deposit_screen.dart';
-import 'package:meal_management/Presentation/ui/screen/previous_month_data_screen.dart';
-import 'package:meal_management/Presentation/ui/screen/profile.dart';
-import 'package:meal_management/Presentation/ui/screen/remove_member.dart';
-import 'package:meal_management/Presentation/ui/screen/user_type.dart';
-import 'package:meal_management/Presentation/ui/widgets/reuse_alert_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:meal_management/Presentation/utils/export_import_drawer.dart';
 
-class AppDrawer extends StatelessWidget {
+
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key, required this.monthModel, required this.messInfoModel});
   final MonthModel monthModel;
   final MessInfoModel messInfoModel;
 
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Column(
         children: [
           _buildDrawerHeader(),
-
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   ListTile(
                     title: const Text("Profile"),
-                    leading: const Icon(Icons.person),
+                    leading: const Icon(Icons.account_circle),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile()));
+                      Get.to(()=>Profile());
                     },
                   ),
                   ListTile(
                     title: Row(
                       children: [
-                        Text("Chef's Bill : ${monthModel.chefBill}"),
+                        Text("Chef's Bill : ${widget.monthModel.chefBill}"),
                       ],
                     ),
-                    leading: const Icon(Icons.cookie),
+                    leading: const Icon(Icons.food_bank),
                     onTap: () {},
                   ),
-                  // ListTile(
-                  //   title: Row(
-                  //     children: [
-                  //       const Text("Fridge Bill :"),
-                  //       Expanded(child: TextFormField())
-                  //     ],
-                  //   ),
-                  //   leading: const Icon(Icons.shop),
-                  //   onTap: () {},
-                  // ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Add Members"),
-                    leading: const Icon(Icons.people),
+                    leading: const Icon(Icons.person_add),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMember()));
+                      Get.to(()=>AddMember());
                     },
                   ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Remove Members"),
-                    leading: const Icon(Icons.people),
+                    leading: const Icon(Icons.person_remove),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: monthModel.members!,)));
+                      Get.to(()=>RemoveMember(memberList: widget.monthModel.members!));
                     },
                   ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Add Balance"),
-                    leading: const Icon(Icons.money),
+                    leading: const Icon(Icons.add_card),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Get.to(()=>DepositScreen(monthModel: monthModel));
+                      Get.to(()=>DepositScreen(monthModel: widget.monthModel));
                     },
                   ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Add Meal"),
-                    leading: const Icon(Icons.add_circle_outline),
+                    leading: const Icon(Icons.fastfood),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal(member: monthModel.members!,)));
+                      Get.to(()=>AddMeal(member: widget.monthModel.members!));
                     },
                   ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Add Cost"),
-                    leading: const Icon(Icons.add_circle_outline),
+                    leading: const Icon(Icons.request_page),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddCost()));
+                      Get.to(()=>AddCost);
                     },
                   ),  ListTile(
                     title: const Text("Day left"),
-                    leading: const Icon(Icons.date_range),
-                    trailing: Text('16'),
+                    leading: const Icon(Icons.timelapse),
+                    trailing: Text('${widget.monthModel.availableDays}'),
                     onTap: () {},
-                  ),  ListTile(
+                  ),
+                  if(widget.messInfoModel.isManager!)
+                  ListTile(
                     title: const Text("Change Manager"),
-                    leading: const Icon(Icons.person),
+                    leading: const Icon(Icons.manage_accounts),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Get.to(()=>ChangeManager(monthModel: monthModel, messInfoModel: messInfoModel));
+                      Get.to(()=>ChangeManager(monthModel: widget.monthModel, messInfoModel: widget.messInfoModel));
                     },
-                  ),  ListTile(
-                    title: const Text("Cost History"),
-                    leading: const Icon(Icons.download),
-                    trailing: const Icon(Icons.navigate_next),
-                    onTap: () {},
                   ),
                   ListTile(
-                    title: const Text("My Meal"),
-                    leading: const Icon(Icons.download),
+                    title: const Text("Cost History"),
+                    leading: const Icon(Icons.attach_money),
                     trailing: const Icon(Icons.navigate_next),
-                    onTap: () {},
+                    onTap: _onTapCostDetails,
                   ),
+                  ListTile(
+                    title: const Text("Meal History"),
+                    leading: const Icon(Icons.local_dining),
+                    trailing: const Icon(Icons.navigate_next),
+                    onTap: _onTapMealDetails,
+                  ),
+                  if(widget.messInfoModel.isManager!)
                   ListTile(
                     title: const Text("Start New Month"),
                     leading: const Icon(Icons.skip_next),
@@ -133,7 +117,7 @@ class AppDrawer extends StatelessWidget {
                     onTap: () {
                       ReuseAlertDialog.showAlertDialog(
                           title: 'New Month Starting',
-                          middleText: 'Are you sure you Create a new Month?',
+                          middleText: 'Are you sure you Create a new Month?\nIt will Delete Previous Month',
                           onConfirm: onTapConfirmStartNewMonth,
                       );
                     },
@@ -170,12 +154,39 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-
           _buildDeveloperInfo(),
         ],
       ),
     );
   }
+
+  Future<void>_onTapMealDetails()async{
+    final List<ViewMealModel> viewMealModel;
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    bool success = await Get.find<ViewMealDetailsController>().viewMealDetails(token!);
+    ViewMealDetailsController viewMealDetailsController=Get.find<ViewMealDetailsController>();
+    if (success) {
+      viewMealModel=viewMealDetailsController.viewMealModelList;
+      Get.to(()=>ViewMealDetails(viewMealModel: viewMealModel));
+    } else {
+      Get.snackbar('Failed to Fetch data', viewMealDetailsController.errorMassage??'missing error message');
+    }
+  }
+
+  Future<void>_onTapCostDetails()async{
+    final  List<ViewCostModel> viewCostModel;
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    ViewCostDetailsController viewCostDetailsController=Get.find<ViewCostDetailsController>();
+    bool success = await viewCostDetailsController.viewCostDetails(token!);
+
+    if (success) {
+      viewCostModel=viewCostDetailsController.viewCostModelList;
+      Get.to(()=>ViewCostDetails(viewCostModel:viewCostModel));
+    } else {
+      Get.snackbar('Failed to Fetch data', viewCostDetailsController.errorMassage??'missing error message');
+    }
+  }
+
   Future<void> onTapSignOut() async {
     FirebaseAuth.instance.signOut();
     final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
@@ -219,6 +230,31 @@ class AppDrawer extends StatelessWidget {
     }
   }
 
+  String monthName() {
+    String? temp = widget.monthModel.name?.split('-').last;
+    if (temp != null && monthNameMapping.containsKey(temp)) {
+      return monthNameMapping[temp]!;
+    }
+    return 'Unknown';
+  }
+
+  Map<String,String> monthNameMapping={
+    '01':'January',
+    '02':'February',
+    '03':'March',
+    '04':'April',
+    '05':'May',
+    '06':'June',
+    '07':'July',
+    '08':'August',
+    '09':'September',
+    '10':'October',
+    '11':'November',
+    '12':'December',
+};
+
+  //Widgets //
+
   Widget _buildDrawerHeader() {
     return DrawerHeader(
       decoration: BoxDecoration(color: Colors.teal),
@@ -228,14 +264,13 @@ class AppDrawer extends StatelessWidget {
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text('Mess-1'), Text('Month: ${monthModel.name}')],
+              children: [Text('${widget.messInfoModel.messName}'), Text('Month: ${monthName()}')],
             ),
           ),
         ],
       ),
     );
   }
-
   Widget _buildDeveloperInfo() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 0),

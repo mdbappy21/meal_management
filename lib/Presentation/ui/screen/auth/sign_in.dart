@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meal_management/Data/services/wrapper.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/forgot_password.dart';
 import 'package:meal_management/Presentation/ui/screen/auth/sign_up.dart';
 import 'package:meal_management/Presentation/ui/widgets/centered_circular_progress_indicator.dart';
+import 'package:meal_management/Presentation/ui/widgets/social_login_options.dart';
 import 'package:meal_management/Presentation/utils/app_constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,88 +46,76 @@ class _SignInState extends State<SignIn> {
                     Image.asset('assets/images/logo.png', height: 150),
                     const SizedBox(height: 16),
                     _buildTextInputField(),
-                    Visibility(
-                      visible: !_isLoading,
-                      replacement: CenteredCircularProgressIndicator(),
-                      child: ElevatedButton(
-                        onPressed: _onTapNextButton,
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(200, 50),
-                        ),
-                        child: const Text('Sign In', style: TextStyle(color: Colors.black)),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Get.to(() => ForgotPassword());
-                      },
-                      child: const Text(
-                        "Forgot Password",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
+                    _buildSignInAndForgotButton(),
                     const SizedBox(height: 48),
-                    const Text('--------- Or Continue with --------'),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: _onTapGoogleSignIn,
-                          child: Card(
-                            elevation: 4,
-                            color: Colors.white,
-                            child: SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Image.asset('assets/images/googleIcon.png'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        GestureDetector(
-                          onTap: (){},
-                          child: Card(
-                            elevation: 4,
-                            color: Colors.white,
-                            child: const SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: Icon(Icons.phone),
-                            ),
-                          ),
-                        ),
-                      ],
+                    SocialLoginOptions(
+                      isLoading: _isGoogleLoading,
+                      onLoadingChanged: (value) {
+                        if (mounted) {
+                          setState(() {
+                            _isGoogleLoading = value;
+                          });
+                        }
+                      },
                     ),
                     const SizedBox(height: 16),
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(fontSize: 16, color: Colors.black),
-                        children: [
-                          const TextSpan(text: 'Not a member? '),
-                          TextSpan(
-                            text: 'Register Now',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = _onTapSignUpButton,
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildBottomText(),
                   ],
                 ),
               ),
             ),
           ),
-
         ),
         if (_isGoogleLoading)
           const CenteredCircularProgressIndicator(),
       ],
+    );
+  }
 
+  //Widgets Extractions//
+  Widget _buildSignInAndForgotButton() {
+    return Column(
+      children: [
+        Visibility(
+          visible: !_isLoading,
+          replacement: CenteredCircularProgressIndicator(),
+          child: ElevatedButton(
+            onPressed: _onTapNextButton,
+            style: ElevatedButton.styleFrom(
+              fixedSize: const Size(200, 50),
+            ),
+            child: const Text('Sign In', style: TextStyle(color: Colors.black)),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Get.to(() => ForgotPassword());
+          },
+          child: const Text(
+            "Forgot Password",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomText() {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(fontSize: 16, color: Colors.black),
+        children: [
+          const TextSpan(text: 'Not a member? '),
+          TextSpan(
+            text: 'Register Now',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+            recognizer: TapGestureRecognizer()..onTap = _onTapSignUpButton,
+          ),
+        ],
+      ),
     );
   }
 
@@ -183,12 +171,13 @@ class _SignInState extends State<SignIn> {
     );
   }
 
+  // Functions //
   void _onTapNextButton() async {
-    _isLoading=true;
-    setState(() {});
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    _isLoading=true;
+    setState(() {});
     try{
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailTEController.text, password: _passwordTEController.text.trim());
       final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -207,54 +196,6 @@ class _SignInState extends State<SignIn> {
   void _onTapSignUpButton() {
     Get.to(() => SignUp());
   }
-
-  Future<void> _onTapGoogleSignIn() async {
-    if(mounted){
-      setState(() {
-        _isGoogleLoading = true;
-      });
-    }
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut();
-     final GoogleSignInAccount? googleUser= await GoogleSignIn().signIn();
-
-      if (googleUser == null) {
-        if(mounted){
-          setState(() => _isGoogleLoading = false);
-        }
-        return;
-      }
-
-     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-     final credential = GoogleAuthProvider.credential(
-       accessToken: googleAuth.accessToken,
-       idToken: googleAuth.idToken,
-     );
-     await FirebaseAuth.instance.signInWithCredential(credential);
-     final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-     await sharedPreferences.setBool('isLoggedIn', true);
-     if(mounted){
-       setState(() => _isGoogleLoading = false);
-     }
-     Get.to(() => Wrapper());
-    } on FirebaseException catch(e){
-      if(mounted){
-        setState(() => _isGoogleLoading = false);
-        Get.snackbar('Error', e.toString());
-      }
-    }
-    catch (e) {
-      if(mounted){
-        setState(() => _isGoogleLoading = false);
-        Get.snackbar('Google Sign-In Error', e.toString());
-      }
-    }
-  }
-
-
-
 
   @override
   void dispose() {

@@ -35,23 +35,15 @@ class _CreateMessState extends State<CreateMess> {
               ),
             ),
             const SizedBox(height: 16),
-            // OutlinedButton(
-            //   onPressed: _selectDate,
-            //   child: Text(
-            //     selectedDate != null
-            //         ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-            //         : 'select a date',
-            //   ),
-            // ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: (){
-              _onTapConfirm();
-            }, child: Text('Confirm'))
+            ElevatedButton(onPressed:_onTapConfirm, child: Text('Confirm'))
           ],
         ),
       ),
     );
   }
+
+  //Functions //
   Future<void>_onTapConfirm()async{
     CreateMessController createMessController=Get.find<CreateMessController>();
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -75,5 +67,11 @@ class _CreateMessState extends State<CreateMess> {
     } else {
       Get.snackbar('Failed',createMessController.errorMessage!);
     }
+  }
+
+  @override
+  void dispose() {
+    _messNameTEController.dispose();
+    super.dispose();
   }
 }

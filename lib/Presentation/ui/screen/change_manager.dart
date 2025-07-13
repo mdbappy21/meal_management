@@ -25,21 +25,7 @@ class ChangeManager extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            Container(
-              height: 50,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.cyan,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Current Manager: '),
-                  Text('${messInfoModel.manager}'),
-                ],
-              ),
-            ),
+            _buildCurrentManagerSection(),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -54,27 +40,7 @@ class ChangeManager extends StatelessWidget {
                   return Card(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              monthModel.members?[index].email ?? '',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              _onTapChangeManager(
-                                monthModel.members?[index].email ?? '',
-                              );
-                            },
-                            icon: Icon(Icons.star_border),
-                          ),
-                        ],
-                      ),
+                      child: _buildMemberInfo(index),
                     ),
                   );
                 },
@@ -85,6 +51,52 @@ class ChangeManager extends StatelessWidget {
       ),
     );
   }
+
+  //Widgets //
+
+  Widget _buildMemberInfo(int index) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            monthModel.members?[index].email ?? '',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            _onTapChangeManager(
+              monthModel.members?[index].email ?? '',
+            );
+          },
+          icon: Icon(Icons.star_border),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrentManagerSection() {
+    return Container(
+      height: 50,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.cyan,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Current Manager: '),
+          Text('${messInfoModel.manager}'),
+        ],
+      ),
+    );
+  }
+
+  // Functions //
 
   Future<void> _onTapChangeManager(String email) async {
     final ChangeManagerController changeManagerController =

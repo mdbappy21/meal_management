@@ -16,47 +16,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
   Timer? _timer;
 
   @override
-  void initState() {
-    super.initState();
-    sendVerifyLink();
-
-    // Optional: Auto check every 5s
-    _timer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) => checkEmailVerified(),
-    );
-  }
-
-  Future<void> sendVerifyLink() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
-        Get.snackbar('Verification Link Sent', 'Check your email inbox.');
-      }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    }
-  }
-
-  Future<void> checkEmailVerified() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    await user?.reload();
-    user = FirebaseAuth.instance.currentUser;
-
-    if (user != null && user.emailVerified) {
-      _timer?.cancel();
-      Get.offAll(() => const Wrapper());
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
@@ -88,5 +47,46 @@ class _VerifyEmailState extends State<VerifyEmail> {
         ),
       ),
     );
+  }
+
+  //Functions//
+  @override
+  void initState() {
+    super.initState();
+    sendVerifyLink();
+
+    _timer = Timer.periodic(
+      const Duration(seconds: 5),
+          (_) => checkEmailVerified(),
+    );
+  }
+
+  Future<void> sendVerifyLink() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        Get.snackbar('Verification Link Sent', 'Check your email inbox.');
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
+  Future<void> checkEmailVerified() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    await user?.reload();
+    user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && user.emailVerified) {
+      _timer?.cancel();
+      Get.offAll(() => const Wrapper());
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }

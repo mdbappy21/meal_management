@@ -34,9 +34,7 @@ class _DepositScreenState extends State<DepositScreen> {
                 _onTapChooseMember(context);
               },
               child: Text(
-                selectedMember != null
-                    ? selectedMember!.email ?? 'N/A'
-                    : 'Choose Member',
+                selectedMember != null ? selectedMember!.email ?? 'N/A' : 'Choose Member',
               ),
             ),
             const SizedBox(height: 16),
@@ -61,9 +59,10 @@ class _DepositScreenState extends State<DepositScreen> {
     );
   }
 
+  //Functions //
+
   void _onTapChooseMember(BuildContext context) {
-    final RenderBox renderBox =
-        _menuKey.currentContext?.findRenderObject() as RenderBox;
+    final RenderBox renderBox = _menuKey.currentContext?.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
@@ -121,5 +120,11 @@ class _DepositScreenState extends State<DepositScreen> {
         Get.snackbar('Failed',addDepositController.errorMessage!);
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _depositTEController.dispose();
+    super.dispose();
   }
 }

@@ -31,24 +31,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 style: TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailTEController,
-                keyboardType: TextInputType.emailAddress,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                decoration: InputDecoration(
-                  hintText: 'Email/phone',
-                  labelText: 'Email/phone',
-                ),
-                validator: (String? value) {
-                  if (value?.trim().isEmpty ?? true) {
-                    return 'Enter your Email';
-                  } else if (AppConstants.emailRegExp.hasMatch(value!) ==
-                      false) {
-                    return 'Enter a valid email address';
-                  }
-                  return null;
-                },
-              ),
+              _buildEmailField(),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _onTapSendLink,
@@ -66,7 +49,29 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 
-//widgets//
+  //widgets Extractions//
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailTEController,
+      keyboardType: TextInputType.emailAddress,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+        hintText: 'Email/phone',
+        labelText: 'Email/phone',
+      ),
+      validator: (String? value) {
+        if (value?.trim().isEmpty ?? true) {
+          return 'Enter your Email';
+        } else if (AppConstants.emailRegExp.hasMatch(value!) ==
+            false) {
+          return 'Enter a valid email address';
+        }
+        return null;
+      },
+    );
+  }
+
   Widget _buildBottomPart() {
     return RichText(
       text: TextSpan(
@@ -79,15 +84,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               fontWeight: FontWeight.bold,
               color: Colors.teal,
             ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = _onTapSignInButton,
+            recognizer: TapGestureRecognizer()..onTap = _onTapSignInButton,
           ),
         ],
       ),
     );
   }
 
-  //widgets//
+  //Functions//
   void _onTapSignInButton() {
     Get.back();
   }
@@ -97,5 +101,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       return;
     }
     FirebaseAuth.instance.sendPasswordResetEmail(email: _emailTEController.text);
+  }
+  @override
+  void dispose() {
+    _emailTEController.dispose();
+    super.dispose();
   }
 }
