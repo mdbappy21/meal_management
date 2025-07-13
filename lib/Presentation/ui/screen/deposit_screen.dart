@@ -2,13 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/member_model.dart';
-import 'package:meal_management/Data/models/mess_model.dart';
+import 'package:meal_management/Data/models/month_model.dart';
 import 'package:meal_management/Presentation/state_holder/add_deposit_controller.dart';
 
 class DepositScreen extends StatefulWidget {
-  const DepositScreen({super.key, required this.messModel});
+  const DepositScreen({super.key, required this.monthModel});
 
-  final MessModel messModel;
+  final MonthModel monthModel;
 
   @override
   State<DepositScreen> createState() => _DepositScreenState();
@@ -35,7 +35,7 @@ class _DepositScreenState extends State<DepositScreen> {
               },
               child: Text(
                 selectedMember != null
-                    ? selectedMember!.email ?? 'No Name'
+                    ? selectedMember!.email ?? 'N/A'
                     : 'Choose Member',
               ),
             ),
@@ -76,7 +76,7 @@ class _DepositScreenState extends State<DepositScreen> {
         0,
       ),
       color: Colors.grey.shade200,
-      items: widget.messModel.members!
+      items: widget.monthModel.members!
           .map(
             (member) => PopupMenuItem(
               value: member,
@@ -103,12 +103,17 @@ class _DepositScreenState extends State<DepositScreen> {
     }else if(amount==0){
       Get.snackbar('Error', 'Please Enter amount');
       return;
-    }else if(amount<0){
-      Get.snackbar('Error', 'Please Enter positive amount');
-      return;
     }else{
+      final String email = selectedMember?.email ?? '';
+      final String date = DateTime.now().toIso8601String().split('T').first;
+      final double amount = double.tryParse(_depositTEController.text) ?? 0;
+      final body = {
+        'email': email,
+        'amount': amount,
+        'date': date,
+      };
       final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-      bool success = await addDepositController.addDeposit(token: token!,amount:amount, email:selectedMember!.email!);
+      bool success = await addDepositController.addDeposit(token: token!,body: body);
       if (success) {
         Get.snackbar('Success', 'Deposit successfully');
         _depositTEController.clear();

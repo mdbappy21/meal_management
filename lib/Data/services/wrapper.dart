@@ -19,7 +19,7 @@ class _WrapperState extends State<Wrapper> {
   bool _isJoinMess = false;
   bool _isLoading = true;
   MessInfoModel? messInfoModel;
-  final user = FirebaseAuth.instance.currentUser;
+
   final MessInfoController messInfoController=Get.find<MessInfoController>();
 
 
@@ -30,7 +30,7 @@ class _WrapperState extends State<Wrapper> {
   }
 
   Future<void> _checkMessStatus() async {
-
+    final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       setState(() {
         _isLoading = false;
@@ -38,14 +38,14 @@ class _WrapperState extends State<Wrapper> {
       return;
     }
 
-    if (!user!.emailVerified) {
+    if (!user.emailVerified) {
       setState(() {
         _isLoading = false;
       });
       return;
     }
 
-    final token = await user!.getIdToken();
+    final token = await user.getIdToken();
     _isJoinMess = await messInfoController.getMessInfo(token!);
     messInfoModel = messInfoController.messInfoModel;
 
@@ -56,6 +56,7 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -66,7 +67,7 @@ class _WrapperState extends State<Wrapper> {
       return const SignIn();
     }
 
-    if (!user!.emailVerified) {
+    if (!user.emailVerified) {
       return VerifyEmail();
     }
 

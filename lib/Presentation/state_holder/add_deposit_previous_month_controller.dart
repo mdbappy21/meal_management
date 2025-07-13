@@ -12,13 +12,18 @@ class AddDepositPreviousMonthController extends GetxController {
 
   String? get errorMessage => _errorMassage;
 
-  Future<bool> addDeposit({required String token,required double amount,required String email}) async {
+  Future<bool> addDeposit({required String token,required String email}) async {
     _inProgress = true;
     update();
 
+    final Map<String, dynamic> body = {
+      "email": email,
+    };
+
     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.dueClearPreviousMonth(email: email, amount: amount),
+      url: Urls.clearDue,
       token: token,
+      body: body
     );
 
     _inProgress = false;

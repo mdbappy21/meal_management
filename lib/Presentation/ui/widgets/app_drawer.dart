@@ -2,24 +2,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/mess_info_model.dart';
-import 'package:meal_management/Data/models/mess_model.dart';
+import 'package:meal_management/Data/models/month_model.dart';
 import 'package:meal_management/Data/services/wrapper.dart';
 import 'package:meal_management/Presentation/state_holder/delete_mess_controller.dart';
 import 'package:meal_management/Presentation/state_holder/previous_month_controller.dart';
 import 'package:meal_management/Presentation/state_holder/start_new_month_controller.dart';
-import 'package:meal_management/Presentation/ui/screen/add_balance.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
 import 'package:meal_management/Presentation/ui/screen/add_meal.dart';
 import 'package:meal_management/Presentation/ui/screen/add_member.dart';
+import 'package:meal_management/Presentation/ui/screen/auth/sign_in.dart';
 import 'package:meal_management/Presentation/ui/screen/change_manager.dart';
+import 'package:meal_management/Presentation/ui/screen/deposit_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/previous_month_data_screen.dart';
 import 'package:meal_management/Presentation/ui/screen/profile.dart';
 import 'package:meal_management/Presentation/ui/screen/remove_member.dart';
 import 'package:meal_management/Presentation/ui/screen/user_type.dart';
+import 'package:meal_management/Presentation/ui/widgets/reuse_alert_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.messModel, required this.messInfoModel});
-  final MessModel messModel;
+  const AppDrawer({super.key, required this.monthModel, required this.messInfoModel});
+  final MonthModel monthModel;
   final MessInfoModel messInfoModel;
 
   @override
@@ -44,7 +47,7 @@ class AppDrawer extends StatelessWidget {
                   ListTile(
                     title: Row(
                       children: [
-                        Text("Chef's Bill : ${messModel.chefBill}"),
+                        Text("Chef's Bill : ${monthModel.chefBill}"),
                       ],
                     ),
                     leading: const Icon(Icons.cookie),
@@ -73,7 +76,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.people),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: messModel.members!,)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveMember(memberList: monthModel.members!,)));
                     },
                   ),
                   ListTile(
@@ -81,7 +84,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.money),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddBalance()));
+                      Get.to(()=>DepositScreen(monthModel: monthModel));
                     },
                   ),
                   ListTile(
@@ -89,7 +92,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.add_circle_outline),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal(member: [],)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AddMeal(member: monthModel.members!,)));
                     },
                   ),
                   ListTile(
@@ -109,7 +112,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.person),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ChangeManager(messModel: messModel, messInfoModel: messInfoModel,)));
+                      Get.to(()=>ChangeManager(monthModel: monthModel, messInfoModel: messInfoModel));
                     },
                   ),  ListTile(
                     title: const Text("Cost History"),
@@ -128,7 +131,11 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.skip_next),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      _onTapStartNewMonth();
+                      ReuseAlertDialog.showAlertDialog(
+                          title: 'New Month Starting',
+                          middleText: 'Are you sure you Create a new Month?',
+                          onConfirm: onTapConfirmStartNewMonth,
+                      );
                     },
                   ),
                   ListTile(
@@ -148,13 +155,16 @@ class AppDrawer extends StatelessWidget {
                     title: const Text("Delete mess",style: TextStyle(color: Colors.red),),
                     leading: const Icon(Icons.delete_forever,color: Colors.red,),
                     onTap: (){
-                      _onTapDeleteMess();
+                      // _onTapDeleteMess();
+                      ReuseAlertDialog.showAlertDialog(title: 'Delete Mess', middleText: 'Are you sure you Want to delete Mess?', onConfirm: _onTapDeleteMess);
                     },
                   ),
                   ListTile(
                     title: const Text("Logout"),
                     leading: const Icon(Icons.logout),
-                    onTap: () {},
+                    onTap: () {
+                      ReuseAlertDialog.showAlertDialog(title: 'Logout', middleText: 'Are you sure you want to Logout', onConfirm: onTapSignOut);
+                    },
                   ),
                 ],
               ),
@@ -165,6 +175,12 @@ class AppDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+  Future<void> onTapSignOut() async {
+    FirebaseAuth.instance.signOut();
+    final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
+    sharedPreferences.remove('isLoggedIn');
+    Get.offAll(SignIn());
   }
 
   Future<void>_onTapPreviousMonthData()async{
@@ -189,24 +205,8 @@ class AppDrawer extends StatelessWidget {
       Get.snackbar('Failed', deleteMessController.errorMassage!);
     }
   }
-  Future<void>_onTapStartNewMonth()async{
-    Get.defaultDialog(
-      backgroundColor: Colors.grey.shade400,
-      buttonColor: Colors.red,
-      title:'New Month Starting',
-      middleText: 'Are you sure you Create a new Month?',
-      textCancel: 'No',
-      textConfirm: 'Yes',
-      barrierDismissible: false,
-      onCancel: (){
-        Get.back();
-      },
-      onConfirm: (){
-        _onTapConfirmStartNewMonth();
-      }
-    );
-  }
-  Future<void>_onTapConfirmStartNewMonth()async{
+
+  Future<void>onTapConfirmStartNewMonth()async{
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     StartNewMonthController startNewMonthController=Get.find<StartNewMonthController>();
     bool success = await startNewMonthController.createNewMonth(token!);
@@ -228,7 +228,7 @@ class AppDrawer extends StatelessWidget {
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text('Mess-1'), Text('Month: ${messModel.monthStart}')],
+              children: [Text('Mess-1'), Text('Month: ${monthModel.name}')],
             ),
           ),
         ],

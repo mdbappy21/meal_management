@@ -12,11 +12,11 @@ class AddMealController extends GetxController {
 
   String? get errorMessage => _errorMassage;
 
-  Future<bool> addMeal(String token, Map<String, dynamic> body) async {
+  Future<bool> addMeal(String token, List<Map<String, dynamic>> body) async {
     _inProgress = true;
     update();
 
-    final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
+    final NetworkResponse response = await Get.find<NetworkCaller>().addMealPostRequest(
       url: Urls.addMeal,
       body: body,
       token: token,

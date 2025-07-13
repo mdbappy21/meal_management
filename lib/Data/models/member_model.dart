@@ -1,45 +1,36 @@
-import 'package:meal_management/Data/models/meals_dates.dart';
-
 class MemberModel {
-  String? name;
   String? email;
+  String? name;
+  bool? isManager;
   double? totalMeal;
   double? deposit;
   double? balance;
-  List<MealsDates>? mealsDates;
 
   MemberModel(
-      {this.name,
-        this.email,
+      {this.email,
+        this.name,
+        this.isManager,
         this.totalMeal,
         this.deposit,
-        this.balance,
-        this.mealsDates});
+        this.balance});
 
   MemberModel.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
     email = json['email'];
-    totalMeal = json['total_meal'];
-    deposit = json['deposit'];
-    balance = json['balance'];
-    if (json['meals_dates'] != null) {
-      mealsDates = <MealsDates>[];
-      json['meals_dates'].forEach((v) {
-        mealsDates!.add(MealsDates.fromJson(v));
-      });
-    }
+    name = json['name'];
+    isManager = json['is_manager'];
+    totalMeal = (json['total_meal']as num?)?.toDouble();
+    deposit = (json['deposit']as num?)?.toDouble();
+    balance = (json['balance']as num?)?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
     data['email'] = email;
+    data['name'] = name;
+    data['is_manager'] = isManager;
     data['total_meal'] = totalMeal;
     data['deposit'] = deposit;
     data['balance'] = balance;
-    if (mealsDates != null) {
-      data['meals_dates'] = mealsDates!.map((v) => v.toJson()).toList();
-    }
     return data;
   }
 }

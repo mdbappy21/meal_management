@@ -10,12 +10,12 @@ class RejectRequestController extends GetxController {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<bool> rejectRequest(String token, String email) async {
+  Future<bool> rejectRequest(String token, int requestId) async {
     _inProgress = true;
     update();
 
     final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.rejectRequest(email: email),
+      url: Urls.rejectRequest(requestId: requestId),
       token: token,
     );
 

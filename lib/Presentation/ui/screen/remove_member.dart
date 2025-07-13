@@ -53,7 +53,7 @@ class RemoveMember extends StatelessWidget {
   }
   Future<void>_onTapRemoveMember(int index)async{
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    if(memberList[index].balance!=0){
+    if(memberList[index].balance!>=5 || memberList[index].balance!<=-5 ){
       Get.snackbar("Warning", 'Member Has Due');
       return;
     }

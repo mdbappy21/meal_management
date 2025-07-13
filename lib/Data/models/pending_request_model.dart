@@ -1,15 +1,13 @@
 class PendingRequestModel {
-  List<String>? pendingRequests;
+  final int id;
+  final String userEmail;
 
-  PendingRequestModel({this.pendingRequests});
+  PendingRequestModel({required this.id, required this.userEmail});
 
-  PendingRequestModel.fromJson(Map<String, dynamic> json) {
-    pendingRequests = json['pending_requests'].cast<String>();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['pending_requests'] = pendingRequests;
-    return data;
+  factory PendingRequestModel.fromJson(Map<String, dynamic> json) {
+    return PendingRequestModel(
+      id: json['id'],
+      userEmail: json['user_email'],
+    );
   }
 }

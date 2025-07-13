@@ -56,9 +56,9 @@ class _CreateMessState extends State<CreateMess> {
     CreateMessController createMessController=Get.find<CreateMessController>();
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
 
-      String name=_messNameTEController.text;
+      String name=_messNameTEController.text.trim();
       Map<String , dynamic>body={
-        'name':name
+        'mess_name':name
       };
 
     bool success = await createMessController.createMess(token!,body);
@@ -76,17 +76,4 @@ class _CreateMessState extends State<CreateMess> {
       Get.snackbar('Failed',createMessController.errorMessage!);
     }
   }
-
-  // Future<void> _selectDate() async {
-  //   final DateTime? pickedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime(2025, 7, 25),
-  //     firstDate: DateTime(2025, 7, 1),
-  //     lastDate: DateTime(2025, 7, 30),
-  //   );
-  //
-  //   setState(() {
-  //     selectedDate = pickedDate;
-  //   });
-  // }
 }

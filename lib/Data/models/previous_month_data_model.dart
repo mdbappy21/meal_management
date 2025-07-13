@@ -1,24 +1,24 @@
 import 'package:meal_management/Data/models/previous_month_member_model.dart';
 
 class PreviousMonthDataModel {
-  String? monthStart;
+  String? month;
+  double? mealRate;
   double? totalMeal;
   double? totalCost;
-  double? chefBill;
   List<Members>? members;
 
   PreviousMonthDataModel(
-      {this.monthStart,
+      {this.month,
+        this.mealRate,
         this.totalMeal,
         this.totalCost,
-        this.chefBill,
         this.members});
 
   PreviousMonthDataModel.fromJson(Map<String, dynamic> json) {
-    monthStart = json['month_start'];
-    totalMeal = json['total_meal'];
-    totalCost = json['total_cost'];
-    chefBill = json['chef_bill'];
+    month = json['month'];
+    mealRate = (json['meal_rate'] as num?)?.toDouble();
+    totalMeal = (json['total_meal'] as num?)?.toDouble();
+    totalCost = (json['total_cost'] as num?)?.toDouble();
     if (json['members'] != null) {
       members = <Members>[];
       json['members'].forEach((v) {
@@ -29,10 +29,10 @@ class PreviousMonthDataModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['month_start'] = monthStart;
+    data['month'] = month;
+    data['meal_rate'] = mealRate;
     data['total_meal'] = totalMeal;
     data['total_cost'] = totalCost;
-    data['chef_bill'] = chefBill;
     if (members != null) {
       data['members'] = members!.map((v) => v.toJson()).toList();
     }

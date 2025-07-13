@@ -32,6 +32,7 @@ class _AddMemberState extends State<AddMember> {
             children: [
               const SizedBox(height: 16),
               TextFormField(
+                keyboardType: TextInputType.emailAddress,
                 controller: _emailTEController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: InputDecoration(
@@ -65,8 +66,11 @@ class _AddMemberState extends State<AddMember> {
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
     bool success = await addMemberController.addMember(token!, _emailTEController.text);
     if (success) {
+      _emailTEController.clear();
+      if(mounted){
+        FocusScope.of(context).unfocus();
+      }
       Get.snackbar('Success', 'Successfully Added Member');
-      Get.back();
     } else {
       Get.snackbar('Failed to Fetch data', addMemberController.errorMessage!);
       _emailTEController.clear();

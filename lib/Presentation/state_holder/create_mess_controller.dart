@@ -30,6 +30,7 @@ class CreateMessController extends GetxController {
       return true;
     } else {
       _errorMassage = response.errorMassage;
+      print(_errorMassage);
       update();
       return false;
     }

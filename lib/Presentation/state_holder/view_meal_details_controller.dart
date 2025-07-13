@@ -1,37 +1,37 @@
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/network_response.dart';
+import 'package:meal_management/Data/models/view_meal_model.dart';
 import 'package:meal_management/Data/services/network_caller.dart';
 import 'package:meal_management/Data/utils/urls.dart';
 
-class JoinRequestController extends GetxController {
+class ViewMealDetailsController extends GetxController {
   bool _inProgress = false;
-
   bool get inProgress => _inProgress;
 
   String? _errorMassage;
-
   String? get errorMassage => _errorMassage;
 
-  Future<bool> sentJoinRequest(String token,Map<String,dynamic>body) async {
+  List<ViewMealModel> viewMealModelList = [];
+
+  Future<bool> viewMealDetails(String token) async {
     _inProgress = true;
     update();
 
-    final NetworkResponse response = await Get.find<NetworkCaller>().postRequest(
-      url: Urls.joinRequest,
+    final NetworkResponse response = await Get.find<NetworkCaller>().getRequest(
+      url: Urls.mealDetails,
       token: token,
-      body: body
     );
 
+    _inProgress = false;
+
     if (response.isSuccess) {
-      print(response.responseData);
+      final List<dynamic> responseData = response.responseData;
+      viewMealModelList = responseData.map((e) => ViewMealModel.fromJson(e)).toList();
       _errorMassage = null;
-      _inProgress = false;
       update();
       return true;
     } else {
-      print(response.errorMassage);
       _errorMassage = response.errorMassage;
-      _inProgress = false;
       update();
       return false;
     }

@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_management/Data/models/mess_info_model.dart';
-import 'package:meal_management/Data/models/mess_model.dart';
-import 'package:meal_management/Presentation/state_holder/mess_members_info_controller.dart';
+import 'package:meal_management/Data/models/month_model.dart';
+import 'package:meal_management/Presentation/state_holder/month_members_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/mess_info_controller.dart';
 import 'package:meal_management/Presentation/state_holder/pending_request_controller.dart';
 import 'package:meal_management/Presentation/ui/screen/add_cost.dart';
@@ -27,8 +27,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey _addFabKey=GlobalKey();
   final MessInfoController messInfoController=Get.find<MessInfoController>();
-  final MessMembersInfoController messMemberInfoController =Get.find<MessMembersInfoController>();
-  MessModel? messModel;
+  final MonthMembersInfoController messMemberInfoController =Get.find<MonthMembersInfoController>();
+  MonthModel? monthModel;
 
   @override
   void initState() {
@@ -62,23 +62,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void>_onTapGetMembersInfo()async{
     final token = await FirebaseAuth.instance.currentUser?.getIdToken();
-    bool success = await Get.find<MessMembersInfoController>().getMessDetails(token!);
+    bool success = await Get.find<MonthMembersInfoController>().getMessDetails(token!);
     if (success) {
-      messModel=messMemberInfoController.messModel;
+      monthModel=messMemberInfoController.monthModel;
       setState(() {});
     } else {
-      Get.snackbar('Failed to Fetch data', messMemberInfoController.errorMessage!);
+      Get.snackbar('Failed to Fetch data', messMemberInfoController.errorMessage??'missing error message');
     }
   }
-  String mealRate(){
-    double mealRate=0;
-    try{
-      mealRate =(messModel?.totalCost ?? 0 + (messModel?.chefBill ?? 0))/ (messModel?.totalMeal ?? 0);
-    }catch(e){
-      mealRate=0.5;
-    }
-    return mealRate.toStringAsFixed(2);
-  }
+  // String mealRate(){
+  //   double mealRate=0;
+  //   try{
+  //     mealRate =(monthModel?.totalCost ?? 0 + (monthModel?.chefBill ?? 0))/ (monthModel?.totalMeal ?? 0);
+  //   }catch(e){
+  //     mealRate=0.5;
+  //   }
+  //   return mealRate.toStringAsFixed(2);
+  // }
   void _onTapPopUpMenu(){
     final context = _addFabKey.currentContext;
     if (context == null) return;
@@ -117,22 +117,39 @@ class _HomeScreenState extends State<HomeScreen> {
       if (value == 'cost') {
         Get.to(() => AddCost());
       } else if (value == 'meal') {
-        Get.to(() => AddMeal(member: messModel!.members!,));
+        Get.to(() => AddMeal(member: monthModel!.members!,));
       }else if (value == 'AddMember') {
         Get.to(() => AddMember());
       }else if (value == 'deposit') {
-        Get.to(() => DepositScreen(messModel: messModel!,));
+        Get.to(() => DepositScreen(monthModel: monthModel!,));
       }
     });
   }
   Future<void>_refreshData()async{
     _onTapGetMembersInfo();
+    // print(monthModel?.mealRate??0000);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (messModel == null) {
-      return const Scaffold(
+    if (monthModel == null) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.grey.shade300,
+          title: Text(widget.messInfoModel?.messName ?? 'Mess Name'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: _onTapPendingRequest,
+              icon: Icon(Icons.notifications_active),
+            ),
+            IconButton(
+              onPressed: onTapSignOut,
+              icon: Icon(Icons.logout),
+            ),
+            SizedBox(width: 8),
+          ],
+        ),
         body: CenteredCircularProgressIndicator(),
       );
     }
@@ -154,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 8),
         ],
       ),
-      drawer: AppDrawer(messModel: messModel!, messInfoModel: widget.messInfoModel!,),
+      drawer: AppDrawer(monthModel: monthModel!, messInfoModel: widget.messInfoModel!,),
       body: RefreshIndicator(
         onRefresh: ()async{
           _refreshData();
@@ -168,16 +185,34 @@ class _HomeScreenState extends State<HomeScreen> {
               visible: !messMemberInfoController.inProgress,
               replacement: CenteredCircularProgressIndicator(),
               child: Expanded(
-                child: GetBuilder<MessMembersInfoController>(
+                child: GetBuilder<MonthMembersInfoController>(
                   builder: (context) {
                     return ListView.builder(
-                      itemCount: messModel?.members?.length??0,
+                      itemCount: monthModel?.members?.length??0,
                       itemBuilder: (context, index) {
                         return _buildMembersDetailsCard(size, index);
                       },
                     );
                   }
                 ),
+                //   child: GetBuilder<MessMembersInfoController>(
+                //     builder: (messMembersInfoController) {
+                //       if (messMembersInfoController.messModel == null ||
+                //           messMembersInfoController.messModel!.members == null) {
+                //         return const Center(
+                //             child: Text("No members available."));
+                //       }
+                //
+                //       return ListView.builder(
+                //         itemCount: messMembersInfoController.messModel!.members!.length,
+                //         itemBuilder: (context, index) {
+                //           return _buildMembersDetailsCard(size,
+                //               messMembersInfoController.messModel!.members![index]);
+                //         },
+                //       );
+                //     },
+                //   )
+
               ),
             ),
           ],
@@ -213,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMembersDetailsCard(Size size, int index) {
     return Card(
-      color: Colors.teal,
+      color: monthModel!.members![index].isManager! ?Colors.orange:Colors.teal,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -222,13 +257,13 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Name: ${messModel?.members?[index].email!.split('@').first??'N/A'}'),
-              Text('Email ${messModel?.members?[index].email??'N/A'}'),
-              Text('Total Meal: ${messModel?.members?[index].totalMeal??'N/A'}'),
-              Text('Deposit: ${messModel?.members?[index].deposit??'Null deposit'}'),
-              Text('Total Cost: ${((messModel?.members?[index].totalMeal ?? 0) * double.parse(mealRate())).toStringAsFixed(2)}'),
-
-              Text('Balance : ${messModel?.members?[index].balance??'null balance'}'),
+              Text('manager: ${monthModel?.members?[index].isManager}'),
+              Text('Name: ${monthModel?.members?[index].name??'N/A'}'),
+              Text('Email ${monthModel?.members?[index].email??'N/A'}'),
+              Text('Total Meal: ${monthModel?.members?[index].totalMeal??'N/A'}'),
+              Text('Deposit: ${monthModel?.members?[index].deposit??'Null deposit'}'),
+              Text('Total Cost: ${((monthModel?.members?[index].totalMeal ?? 0) * (monthModel?.mealRate??0)) .toStringAsFixed(2)}'),
+              Text('Balance : ${monthModel?.members?[index].balance??'null balance'}'),
             ],
           ),
         ),
@@ -240,9 +275,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildBannerCard(size, 'Total Meal', '${messModel?.totalMeal??'null total meal'}'),
-        _buildBannerCard(size, 'Total Cost', '${messModel?.totalCost??'null total cost'}'),
-        _buildBannerCard(size, 'Meal Rate', mealRate()),
+        _buildBannerCard(size, 'Total Meal', '${monthModel?.totalMeal??'N/A'}'),
+        _buildBannerCard(size, 'Total Cost', '${monthModel?.totalCost??'N/A'}'),
+        _buildBannerCard(size, 'Meal Rate', monthModel?.mealRate?.toStringAsFixed(2)??'N/A'),
       ],
     );
   }

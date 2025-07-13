@@ -6,15 +6,12 @@ import 'package:meal_management/Data/utils/urls.dart';
 
 class PendingRequestController extends GetxController {
   bool _inProgress = false;
-
   bool get inProgress => _inProgress;
 
   String? _errorMassage;
-
   String? get errorMassage => _errorMassage;
 
-  // PendingRequestModel? pendingRequestModel;
-  PendingRequestModel? pendingRequests;
+  List<PendingRequestModel>? pendingRequests;
 
   Future<bool> pendingRequest(String token) async {
     _inProgress = true;
@@ -25,27 +22,27 @@ class PendingRequestController extends GetxController {
       token: token,
     );
 
+    _inProgress = false;
+
     if (response.isSuccess) {
       final data = response.responseData;
-      if (data is Map<String, dynamic> && data['pending_requests'] is List) {
-        // Map each string email to a PendingRequestModel (if you still want a model)
-        pendingRequests = PendingRequestModel.fromJson(data);
+
+      if (data is List) {
+        pendingRequests = data
+            .map((e) => PendingRequestModel.fromJson(e))
+            .toList()
+            .cast<PendingRequestModel>();
+
         _errorMassage = null;
-        _inProgress = false;
         update();
         return true;
-      }  else {
+      } else {
         _errorMassage = "Unexpected response format";
+        update();
         return false;
       }
-      _errorMassage = null;
-      _inProgress = false;
-      update();
-      return true;
     } else {
-      print(response.errorMassage);
       _errorMassage = response.errorMassage;
-      _inProgress = false;
       update();
       return false;
     }
