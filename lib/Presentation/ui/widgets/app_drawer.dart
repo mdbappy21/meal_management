@@ -1,6 +1,5 @@
 import 'package:meal_management/Presentation/utils/export_import_drawer.dart';
 
-
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key, required this.monthModel, required this.messInfoModel});
   final MonthModel monthModel;
@@ -26,7 +25,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     leading: const Icon(Icons.account_circle),
                     trailing: const Icon(Icons.navigate_next),
                     onTap: () {
-                      Get.to(()=>Profile());
+                      _onTapProfile();
                     },
                   ),
                   ListTile(
@@ -85,7 +84,8 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),  ListTile(
                     title: const Text("Day left"),
                     leading: const Icon(Icons.timelapse),
-                    trailing: Text('${widget.monthModel.availableDays}'),
+                    trailing: Text('${availableDay()}'),
+                    // trailing: Text('${widget.monthModel.availableDays}'),
                     onTap: () {},
                   ),
                   if(widget.messInfoModel.isManager!)
@@ -158,6 +158,18 @@ class _AppDrawerState extends State<AppDrawer> {
         ],
       ),
     );
+  }
+
+  //Functions //
+  Future<void>_onTapProfile()async{
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    MyInfoController myInfoController=Get.find<MyInfoController>();
+    bool isSuccess = await myInfoController.getMyInfo(token!);
+    if(isSuccess){
+      Get.to(()=>Profile(myInfoModel: myInfoController.myInfoModel!));
+    }else{
+      Get.snackbar('Failed', myInfoController.errorMessage!);
+    }
   }
 
   Future<void>_onTapMealDetails()async{
@@ -233,24 +245,36 @@ class _AppDrawerState extends State<AppDrawer> {
   String monthName() {
     String? temp = widget.monthModel.name?.split('-').last;
     if (temp != null && monthNameMapping.containsKey(temp)) {
-      return monthNameMapping[temp]!;
+      return monthNameMapping[temp]!.first;
     }
     return 'Unknown';
   }
 
-  Map<String,String> monthNameMapping={
-    '01':'January',
-    '02':'February',
-    '03':'March',
-    '04':'April',
-    '05':'May',
-    '06':'June',
-    '07':'July',
-    '08':'August',
-    '09':'September',
-    '10':'October',
-    '11':'November',
-    '12':'December',
+  int availableDay(){
+    int availableDay=0;
+    DateTime currentDate=DateTime.now();
+    int today=currentDate.day;
+    String? temp = widget.monthModel.name?.split('-').last;
+    if (temp != null && monthNameMapping.containsKey(temp)) {
+      availableDay= int.tryParse(monthNameMapping[temp]!.last)??0;
+    }
+    availableDay-=today;
+    return availableDay;
+  }
+
+  Map<String,List<String>> monthNameMapping={
+    '01':['January','31'],
+    '02':['February','28'],
+    '03':['March','31'],
+    '04':['April','30'],
+    '05':['May','31'],
+    '06':['June','30'],
+    '07':['July','31'],
+    '08':['August','31'],
+    '09':['September','30'],
+    '10':['October','31'],
+    '11':['November','30'],
+    '12':['December','31'],
 };
 
   //Widgets //

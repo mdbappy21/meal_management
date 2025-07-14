@@ -88,9 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if(widget.messInfoModel!.isManager!)
-          _buildFloatingActionButton(heroTag: 'add',key: _addFabKey, icon: Icon(Icons.add), onPressed: _onTapPopUpMenu),
           _buildFloatingActionButton(heroTag: 'SendMessage', icon: Icon(Icons.send), onPressed: _onTapMessage,),
+          if(widget.messInfoModel!.isManager!)
+            _buildFloatingActionButton(heroTag: 'add',key: _addFabKey, icon: Icon(Icons.add), onPressed: _onTapPopUpMenu),
         ],
       ),
     );

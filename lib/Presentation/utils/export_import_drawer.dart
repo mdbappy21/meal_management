@@ -25,3 +25,4 @@ export 'package:meal_management/Data/models/view_cost_model.dart';
 export 'package:meal_management/Data/models/view_meal_model.dart';
 export 'package:meal_management/Presentation/ui/widgets/reuse_alert_dialog.dart';
 export 'package:meal_management/Presentation/state_holder/view_cost_details_controller.dart';
+export 'package:meal_management/Presentation/state_holder/my_info_controller.dart';

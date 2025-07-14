@@ -1,6 +1,8 @@
 class MemberModel {
   String? email;
   String? name;
+  String? phone;
+  String? cityName;
   bool? isManager;
   double? totalMeal;
   double? deposit;

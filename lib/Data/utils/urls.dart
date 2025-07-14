@@ -1,8 +1,6 @@
 class Urls{
   static const String _baseUrl='http://192.168.0.197:8000/';
-  static const String userInfo='${_baseUrl}me';
-  static String addMember(String email) => '${_baseUrl}mess/add_member?email=$email';
-  static String removeMember({required String email}) => '${_baseUrl}mess/remove_member?email=$email';
+  // static const String userInfo='${_baseUrl}me';
 
 
   static const String createMess = '${_baseUrl}mess/create';
@@ -26,6 +24,12 @@ class Urls{
   static String changeManager(String email)=>'${_baseUrl}mess/transfer_manager/$email';
   static const String leaveMess ='${_baseUrl}mess/leave';
   static const String deleteMess ='${_baseUrl}mess/delete';
+  static String addMember(String email) => '${_baseUrl}mess/add_member?email=$email';
+  static String removeMember({required String email}) => '${_baseUrl}mess/remove_member?email=$email';
+  static const String myInfo = '${_baseUrl}member/me';
+  static const String updateMyInfo = '${_baseUrl}member/update_info';
+
+
 
 
   static const String updateUtilityBill='${_baseUrl}update-bills';
